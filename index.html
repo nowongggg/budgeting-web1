@@ -140,7 +140,6 @@
         <button class="tab-btn" id="btn-crd" onclick="switchTab('cards-tab')">Credit Cards</button>
     </div>
 
-    <!-- ================= EXPENSES TAB ================= -->
     <div id="expenses-tab" class="tab-content active expenses-theme">
         <div class="total-card expenses-theme">
             <h2>Total Expenses (<span id="currentMonthLabel">Selected Month</span>)</h2>
@@ -210,7 +209,6 @@
         </div>
     </div>
 
-    <!-- ================= SAVINGS TAB ================= -->
     <div id="savings-tab" class="tab-content savings-theme">
         <div class="total-card savings-theme">
             <h2>Total Savings & Equities</h2>
@@ -256,7 +254,6 @@
         </div>
     </div>
 
-    <!-- ================= STOCKS TAB ================= -->
     <div id="stocks-tab" class="tab-content stocks-theme">
         <div class="total-card stocks-theme">
             <h2>Stock Portfolio Valuation</h2>
@@ -265,6 +262,13 @@
 
         <div class="api-status" id="stockApiStatus">
             Stock Data Status: Waiting Sync... <span class="refresh-pill" onclick="fetchAllStockPrices()">⚡ Force Refresh</span>
+        </div>
+
+        <div class="card" style="background: #faf5ff; border: 1px solid #e9d5ff;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label style="color:#6b21a8;">🔑 Finnhub API Key Setup</label>
+                <input type="text" id="finnhubKey" placeholder="Paste your free API Key here" onchange="saveApiKey()" style="background:#fff; border-color:#d8b4fe;">
+            </div>
         </div>
 
         <div class="card">
@@ -298,7 +302,6 @@
         </div>
     </div>
 
-    <!-- ================= CREDIT CARDS TAB ================= -->
     <div id="cards-tab" class="tab-content cards-theme">
         <div class="total-card cards-theme">
             <h2 style="color: #000;">Total Outstanding Credit Debt</h2>
@@ -347,6 +350,15 @@
     const currencyOptions = ['HKD', 'USD', 'JPY', 'EUR', 'GBP', 'CNY', 'TWD', 'KRW'];
     let liveRates = { HKD: 1, USD: 7.84, JPY: 0.049, EUR: 8.42, GBP: 9.95, CNY: 1.08, TWD: 0.24, KRW: 0.0056 };
     let categoryPieChart = null;
+
+    // Load API Key from safe local memory on app startup
+    document.getElementById('finnhubKey').value = localStorage.getItem('w_finnhub_key') || '';
+
+    function saveApiKey() {
+        const val = document.getElementById('finnhubKey').value.trim();
+        localStorage.setItem('w_finnhub_key', val);
+        fetchAllStockPrices();
+    }
 
     document.querySelectorAll('.curr-select').forEach(select => {
         currencyOptions.forEach(curr => {
@@ -408,51 +420,51 @@
         await fetchAllStockPrices();
     }
 
-    // ================= NEW LIVE ENGINE FOR STOCKS =================
+    // ================= FINNHUB DEPLOYMENT ENGINE =================
+    async function fetchSingleStock(symbol, apiKey) {
+        // Finnhub expects standard US symbols (AAPL) and dot notation for others (0700.HK)
+        const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("API Limit or Block");
+        const json = await res.json();
+        // 'c' represents current close market price in Finnhub schema
+        if (json.c && json.c !== 0) return json.c;
+        return null;
+    }
+
     async function fetchAllStockPrices() {
+        const apiKey = localStorage.getItem('w_finnhub_key');
+        if(!apiKey) {
+            document.getElementById('stockApiStatus').innerHTML = "⚠️ Setup Needed: Enter Finnhub API Key above.";
+            updateUI();
+            return;
+        }
+
         if(data.stocks.length === 0) {
             document.getElementById('stockApiStatus').innerText = "Stock Status: No assets tracked.";
             updateUI();
             return;
         }
 
-        document.getElementById('stockApiStatus').innerText = "🔄 Querying real-time changes...";
-        
-        // Build query string array for Yahoo Finance API endpoints
-        // HK stocks need 4 digits + suffix (e.g., 0700.HK)
-        const symbols = data.stocks.map(s => {
-            let ticker = s.ticker.toUpperCase().trim();
-            if (s.market === 'HK' && !ticker.includes('.')) {
-                ticker = ticker.padStart(4, '0') + ".HK";
-            }
-            return ticker;
-        });
+        document.getElementById('stockApiStatus').innerText = "🔄 Fetching live data directly from Finnhub...";
 
         try {
-            // Using a high-speed cors proxy engine to query Yahoo Finance directly without API configuration steps
-            const targetUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}`;
-            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-            
-            const response = await fetch(proxyUrl);
-            const json = await response.json();
-            const quotes = json.quoteResponse.result;
-
-            data.stocks.forEach(stock => {
-                let checkTicker = stock.ticker.toUpperCase().trim();
-                if (stock.market === 'HK' && !checkTicker.includes('.')) {
-                    checkTicker = checkTicker.padStart(4, '0') + ".HK";
+            // Process tickers one by one natively to bypass massive proxy blocks entirely
+            for(let stock of data.stocks) {
+                let symbol = stock.ticker.toUpperCase().trim();
+                if (stock.market === 'HK' && !symbol.includes('.')) {
+                    symbol = symbol.padStart(4, '0') + ".HK";
                 }
                 
-                const match = quotes.find(q => q.symbol.toUpperCase() === checkTicker);
-                if (match && match.regularMarketPrice) {
-                    stock.price = match.regularMarketPrice; // Dynamically overwrite local cache values
+                const livePrice = await fetchSingleStock(symbol, apiKey);
+                if (livePrice) {
+                    stock.price = livePrice;
                 }
-            });
-
+            }
             document.getElementById('stockApiStatus').innerHTML = `✅ Synced live at ${new Date().toLocaleTimeString()} <span class="refresh-pill" onclick="fetchAllStockPrices()">⚡ Refresh</span>`;
         } catch (err) {
-            console.log("Live stream connection lag: ", err);
-            document.getElementById('stockApiStatus').innerHTML = `⚠️ API Timeout (Using Cache) <span class="refresh-pill" onclick="fetchAllStockPrices()">⚡ Retry</span>`;
+            console.log("Finnhub stream limit details: ", err);
+            document.getElementById('stockApiStatus').innerHTML = `⚠️ Sync Paused (Using Cache) <span class="refresh-pill" onclick="fetchAllStockPrices()">⚡ Retry</span>`;
         }
         
         updateUI();
@@ -482,7 +494,6 @@
         localStorage.setItem('w_cards_v5', JSON.stringify(data.creditCards));
 
         const selectedMonth = document.getElementById('monthFilter').value || new Date().toISOString().substring(0, 7);
-        
         const labelEl = document.getElementById('currentMonthLabel');
         if(labelEl) labelEl.innerText = new Date(selectedMonth + "-02").toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
@@ -502,7 +513,7 @@
         let bankDeductionsMap = data.savings.map(() => 0);
         let categoryTotals = { Food: 0, Transport: 0, Shopping: 0, Entertainment: 0, Bills: 0, Others: 0 };
 
-        // Render Expenses
+        // Expenses Processing
         const expListEl = document.getElementById('expenseList'); expListEl.innerHTML = '';
         let totalFilteredMonthExpHKD = 0;
         data.expenses.forEach((item, idx) => {
@@ -526,7 +537,7 @@
         document.getElementById('expenseTotal').innerText = `HK$ ${totalFilteredMonthExpHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
         renderPieChart(categoryTotals);
 
-        // Render Stocks Layout
+        // Stocks Layout Processing
         const stockListEl = document.getElementById('stockList'); stockListEl.innerHTML = '';
         let totalStocksHKD = 0, totalHksHKD = 0, totalUssHKD = 0;
 
@@ -550,7 +561,7 @@
         if(data.stocks.length === 0) stockListEl.innerHTML = '<li class="item-row subtext">No tracked tickers.</li>';
         document.getElementById('stocksTotal').innerText = `HK$ ${totalStocksHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
 
-        // Render Savings Lists
+        // Savings Display Processing
         const bankListEl = document.getElementById('bankList');
         const investListEl = document.getElementById('investList');
         const autoStockValuationListEl = document.getElementById('autoStockValuationList');
@@ -580,7 +591,7 @@
         });
         document.getElementById('savingsTotal').innerText = `HK$ ${totalSavingsHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
 
-        // Render Credit Cards Debt
+        // Credit Cards Debt Processing
         const ccListEl = document.getElementById('creditCardList'); ccListEl.innerHTML = '';
         let totalCardDebtHKD = 0;
         data.creditCards.forEach((card, idx) => {
@@ -641,7 +652,7 @@
             market: activeStockMarket,
             ticker: document.getElementById('stockTicker').value.trim(),
             shares: parseFloat(document.getElementById('stockShares').value),
-            price: 0 // Will auto-fetch instantly next
+            price: 0
         });
         document.getElementById('stockForm').reset();
         fetchAllStockPrices();
@@ -657,9 +668,7 @@
     function clearData(cat) { if(confirm(`Clear ${cat}?`)) { data[cat] = []; if(cat==='expenses') buildDropdownMonths(); updateUI(); } }
 
     fetchRates();
-    
-    // Automatically poll the markets every 60 seconds when app is open
-    setInterval(fetchAllStockPrices, 60000);
+    setInterval(fetchAllStockPrices, 60000); // 60s update cycle loops
 </script>
 </body>
 </html>
