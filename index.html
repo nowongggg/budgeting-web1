@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi-Currency Wealth, Credit & Analytics Tracker</title>
+    
+    <link rel="manifest" href="./manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Tracker">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2454/2454269.png">
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         :root {
@@ -120,7 +127,7 @@
                 <div class="form-row">
                     <div class="form-group" style="flex: 2;">
                         <label>Item Description</label>
-                        <input type="text" id="expName" placeholder="e.g., MTR, Lunch, Slabs" required>
+                        <input type="text" id="expName" placeholder="e.g., Lunch, Slabs" required>
                     </div>
                     <div class="form-group" style="flex: 1;">
                         <label>Category</label>
@@ -257,6 +264,13 @@
 </div>
 
 <script>
+    // PWA Service Worker Registration Routine
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log("PWA Engine active and stable."))
+        .catch(err => console.log("Service Worker validation paused.", err));
+    }
+
     let data = {
         expenses: JSON.parse(localStorage.getItem('cc_expenses_v4')) || [],
         savings: JSON.parse(localStorage.getItem('cc_savings_v4')) || [],
@@ -288,16 +302,14 @@
     function toggleAssetLabel() {
         const type = document.getElementById('assetType').value;
         document.getElementById('nameLabel').innerText = type === 'Bank' ? 'Bank Name' : 'Investment Platform / App Name';
-        document.getElementById('assetName').placeholder = type === 'Bank' ? 'e.g., HSBC, Hang Seng' : 'e.g., Futu, IBKR';
+        document.getElementById('assetName').placeholder = type === 'Bank' ? 'e.g., HSBC, ZA Bank' : 'e.g., Futu, IBKR';
     }
 
-    // Handles smart UI toggles and layout rules for Bank Transfers and Credit Cards
     function handlePaymentMethodChange() {
         const method = document.getElementById('expPaymentMethod').value;
         const bankGroup = document.getElementById('bankSelectGroup');
         const ccGroup = document.getElementById('creditCardSelectGroup');
 
-        // Reset visibility parameters
         bankGroup.style.display = 'none';
         ccGroup.style.display = 'none';
 
@@ -377,13 +389,12 @@
             labelEl.innerText = parsedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
         }
 
-        // Re-compile conditional input fields mappings
         const bankSelect = document.getElementById('expChosenBank');
         bankSelect.innerHTML = '';
         data.savings.forEach((asset, originalIndex) => {
             if(asset.type === 'Bank') {
                 let opt = document.createElement('option');
-                opt.value = originalIndex; // mapped to absolute structural data arrays
+                opt.value = originalIndex; 
                 opt.innerText = `${asset.name} (${asset.currency})`;
                 bankSelect.appendChild(opt);
             }
@@ -398,12 +409,10 @@
             ccSelect.appendChild(opt);
         });
 
-        // Track live computations
         let cardDebtAccruals = data.creditCards.map(() => 0);
         let bankDeductionsMap = data.savings.map(() => 0);
         let categoryTotals = { Food: 0, Transport: 0, Shopping: 0, Entertainment: 0, Bills: 0, Others: 0 };
 
-        // --- 1. COMPUTE DEDUCTIONS AND RENDER EXPENSES ---
         const expListEl = document.getElementById('expenseList');
         expListEl.innerHTML = '';
         let totalFilteredMonthExpHKD = 0;
@@ -411,7 +420,6 @@
         data.expenses.forEach((item, idx) => {
             const itemCostInHKD = item.amount * item.frozenRate;
 
-            // Process balance deduction rules dynamically
             if (item.paymentMethod === 'Credit Card' && item.cardIndex !== null && cardDebtAccruals[item.cardIndex] !== undefined) {
                 const targetCard = data.creditCards[item.cardIndex];
                 const costInCardCurrency = itemCostInHKD / (liveRates[targetCard.currency] || 1);
@@ -423,7 +431,6 @@
                 bankDeductionsMap[item.bankAssetIndex] += deductionInBankCurrency;
             }
 
-            // Month Filter Render Limits
             if (item.periodMonth === selectedMonth) {
                 totalFilteredMonthExpHKD += itemCostInHKD;
                 if(categoryTotals[item.category] !== undefined) categoryTotals[item.category] += itemCostInHKD;
@@ -455,7 +462,6 @@
 
         renderPieChart(categoryTotals);
 
-        // --- 2. RENDER LINKED CREDIT CARDS ---
         const ccListEl = document.getElementById('creditCardList');
         ccListEl.innerHTML = '';
         let totalCardDebtHKD = 0;
@@ -483,14 +489,12 @@
         if(data.creditCards.length === 0) ccListEl.innerHTML = '<li class="item-row subtext">No linked credit cards.</li>';
         document.getElementById('cardsTotal').innerText = `HK$ ${totalCardDebtHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
-        // --- 3. RENDER ALL SAVINGS WALLETS (WITH DYNAMIC DEBITS REMOVED) ---
         const bankListEl = document.getElementById('bankList');
         const investListEl = document.getElementById('investList');
         bankListEl.innerHTML = ''; investListEl.innerHTML = '';
         let totalSavingsHKD = 0;
 
         data.savings.forEach((item, idx) => {
-            // Deduct the dynamic calculated bank transfer expenses from initial pool balance
             const runningBalance = item.amount - bankDeductionsMap[idx];
             const hkdVal = runningBalance * (liveRates[item.currency] || 1);
             totalSavingsHKD += hkdVal;
@@ -583,4 +587,48 @@
         updateUI();
         document.getElementById('expenseForm').reset();
         document.getElementById('creditCardSelectGroup').style.display = 'none';
-        document.getElementById('bankSelectGroup
+        document.getElementById('bankSelectGroup').style.display = 'none';
+    });
+
+    document.getElementById('savingsForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        data.savings.push({
+            type: document.getElementById('assetType').value,
+            name: document.getElementById('assetName').value,
+            amount: parseFloat(document.getElementById('assetAmount').value),
+            currency: document.getElementById('assetCurrency').value
+        });
+        updateUI();
+        document.getElementById('savingsForm').reset();
+        toggleAssetLabel();
+    });
+
+    document.getElementById('cardForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        data.creditCards.push({
+            name: document.getElementById('cardName').value,
+            bank: document.getElementById('cardBank').value,
+            currency: document.getElementById('cardCurrency').value
+        });
+        updateUI();
+        document.getElementById('cardForm').reset();
+    });
+
+    function deleteItem(category, index) {
+        data[category].splice(index, 1);
+        if(category === 'expenses') buildDropdownMonths();
+        updateUI();
+    }
+
+    function clearData(category) {
+        if(confirm(`Permanently clear your active dataset history for ${category}?`)) {
+            data[category] = [];
+            if(category === 'expenses') buildDropdownMonths();
+            updateUI();
+        }
+    }
+
+    fetchRates();
+</script>
+</body>
+</html>
