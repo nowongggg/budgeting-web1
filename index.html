@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multi-Currency Wealth, Credit & Analytics Tracker</title>
-    <!-- Chart.js CDN for the Expense Pie Chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         :root {
@@ -26,10 +25,7 @@
             display: flex;
             justify-content: center;
         }
-        .container {
-            width: 100%;
-            max-width: 650px;
-        }
+        .container { width: 100%; max-width: 650px; }
         h1 { text-align: center; font-size: 1.5rem; margin-bottom: 20px; }
         
         .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
@@ -95,27 +91,23 @@
 <div class="container">
     <h1>Personal Multi-Currency Tracker</h1>
     
-    <!-- Navigation Tabs -->
     <div class="tabs">
         <button class="tab-btn active" id="btn-exp" onclick="switchTab('expenses-tab')">Expenses</button>
         <button class="tab-btn" id="btn-sav" onclick="switchTab('savings-tab')">Savings</button>
         <button class="tab-btn" id="btn-crd" onclick="switchTab('cards-tab')">Credit Cards</button>
     </div>
 
-    <!-- ================= EXPENSES PAGE ================= -->
     <div id="expenses-tab" class="tab-content active">
         <div class="total-card">
             <h2>Total Expenses (<span id="currentMonthLabel">Selected Month</span>)</h2>
             <div class="total-amount" id="expenseTotal">HK$ 0.00</div>
         </div>
 
-        <!-- Monthly Selector Filter -->
         <div class="card" style="padding: 12px 20px;">
             <label>📅 View Statement Month</label>
             <select id="monthFilter" onchange="updateUI()"></select>
         </div>
 
-        <!-- Visual Analytics Pie Chart Container -->
         <div class="card" id="chartCard" style="display:none;">
             <h3 style="margin-top:0; text-align:center; font-size:1rem; color:#475569;">Monthly Breakdown Chart</h3>
             <div class="chart-container">
@@ -123,7 +115,6 @@
             </div>
         </div>
 
-        <!-- Input Log Form -->
         <div class="card">
             <form id="expenseForm">
                 <div class="form-row">
@@ -156,14 +147,18 @@
                 
                 <div class="form-group">
                     <label>Payment Method</label>
-                    <select id="expPaymentMethod" onchange="toggleCreditCardSelect()">
+                    <select id="expPaymentMethod" onchange="handlePaymentMethodChange()">
                         <option value="Cash">💵 Cash</option>
                         <option value="Bank Transfer">🏦 Bank Transfer</option>
                         <option value="Credit Card">💳 Credit Card</option>
                     </select>
                 </div>
 
-                <!-- Hidden by default, triggers only on Credit Card choice -->
+                <div class="form-group" id="bankSelectGroup" style="display: none;">
+                    <label style="color: var(--success);">Select Source Bank Account</label>
+                    <select id="expChosenBank"></select>
+                </div>
+
                 <div class="form-group" id="creditCardSelectGroup" style="display: none;">
                     <label style="color: var(--primary);">Choose Credit Card Used</label>
                     <select id="expChosenCard"></select>
@@ -182,7 +177,6 @@
         </div>
     </div>
 
-    <!-- ================= SAVINGS PAGE ================= -->
     <div id="savings-tab" class="tab-content savings-theme">
         <div class="total-card savings-theme">
             <h2>Total Savings Assets (Live Rates)</h2>
@@ -204,7 +198,7 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group" style="flex: 2;">
-                        <label>Balance Amount</label>
+                        <label>Initial Balance Amount</label>
                         <input type="number" id="assetAmount" step="0.01" placeholder="0.00" required>
                     </div>
                     <div class="form-group" style="flex: 1;">
@@ -228,7 +222,6 @@
         </div>
     </div>
 
-    <!-- ================= CREDIT CARDS PAGE ================= -->
     <div id="cards-tab" class="tab-content cards-theme">
         <div class="total-card cards-theme">
             <h2 style="color: #000;">Total Outstanding Credit Debt (Live Rates)</h2>
@@ -265,9 +258,9 @@
 
 <script>
     let data = {
-        expenses: JSON.parse(localStorage.getItem('cc_expenses_v3')) || [],
-        savings: JSON.parse(localStorage.getItem('cc_savings_v3')) || [],
-        creditCards: JSON.parse(localStorage.getItem('cc_cards_v3')) || []
+        expenses: JSON.parse(localStorage.getItem('cc_expenses_v4')) || [],
+        savings: JSON.parse(localStorage.getItem('cc_savings_v4')) || [],
+        creditCards: JSON.parse(localStorage.getItem('cc_cards_v4')) || []
     };
 
     const currencyOptions = ['HKD', 'USD', 'JPY', 'EUR', 'GBP', 'CNY', 'TWD', 'KRW'];
@@ -295,24 +288,34 @@
     function toggleAssetLabel() {
         const type = document.getElementById('assetType').value;
         document.getElementById('nameLabel').innerText = type === 'Bank' ? 'Bank Name' : 'Investment Platform / App Name';
-        document.getElementById('assetName').placeholder = type === 'Bank' ? 'e.g., HSBC, ZA Bank' : 'e.g., Futu, IBKR';
+        document.getElementById('assetName').placeholder = type === 'Bank' ? 'e.g., HSBC, Hang Seng' : 'e.g., Futu, IBKR';
     }
 
-    // Controls appearance of card selection dropdown, with custom validation rules
-    function toggleCreditCardSelect() {
+    // Handles smart UI toggles and layout rules for Bank Transfers and Credit Cards
+    function handlePaymentMethodChange() {
         const method = document.getElementById('expPaymentMethod').value;
+        const bankGroup = document.getElementById('bankSelectGroup');
         const ccGroup = document.getElementById('creditCardSelectGroup');
-        
-        if (method === 'Credit Card') {
-            if (data.creditCards.length === 0) {
-                alert("You haven't added any credit cards yet! Please go to the 'Credit Cards' tab to add one first.");
+
+        // Reset visibility parameters
+        bankGroup.style.display = 'none';
+        ccGroup.style.display = 'none';
+
+        if (method === 'Bank Transfer') {
+            const totalBanksCount = data.savings.filter(s => s.type === 'Bank').length;
+            if (totalBanksCount === 0) {
+                alert("You haven't listed any bank accounts on your Savings tab yet! Please add a bank account asset first.");
                 document.getElementById('expPaymentMethod').value = 'Cash';
-                ccGroup.style.display = 'none';
+            } else {
+                bankGroup.style.display = 'block';
+            }
+        } else if (method === 'Credit Card') {
+            if (data.creditCards.length === 0) {
+                alert("You haven't linked any credit cards yet! Please head to the Credit Cards tab to configure one.");
+                document.getElementById('expPaymentMethod').value = 'Cash';
             } else {
                 ccGroup.style.display = 'block';
             }
-        } else {
-            ccGroup.style.display = 'none';
         }
     }
 
@@ -328,7 +331,7 @@
                 });
             }
         } catch (e) {
-            console.log("Using offline configuration parameters.", e);
+            console.log("Offline or baseline fallback engine context running.", e);
         }
         buildDropdownMonths();
         updateUI();
@@ -362,9 +365,9 @@
     }
 
     function updateUI() {
-        localStorage.setItem('cc_expenses_v3', JSON.stringify(data.expenses));
-        localStorage.setItem('cc_savings_v3', JSON.stringify(data.savings));
-        localStorage.setItem('cc_cards_v3', JSON.stringify(data.creditCards));
+        localStorage.setItem('cc_expenses_v4', JSON.stringify(data.expenses));
+        localStorage.setItem('cc_savings_v4', JSON.stringify(data.savings));
+        localStorage.setItem('cc_cards_v4', JSON.stringify(data.creditCards));
 
         const selectedMonth = document.getElementById('monthFilter').value || new Date().toISOString().substring(0, 7);
         
@@ -374,7 +377,18 @@
             labelEl.innerText = parsedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
         }
 
-        // Populate card choices dropdown options
+        // Re-compile conditional input fields mappings
+        const bankSelect = document.getElementById('expChosenBank');
+        bankSelect.innerHTML = '';
+        data.savings.forEach((asset, originalIndex) => {
+            if(asset.type === 'Bank') {
+                let opt = document.createElement('option');
+                opt.value = originalIndex; // mapped to absolute structural data arrays
+                opt.innerText = `${asset.name} (${asset.currency})`;
+                bankSelect.appendChild(opt);
+            }
+        });
+
         const ccSelect = document.getElementById('expChosenCard');
         ccSelect.innerHTML = '';
         data.creditCards.forEach((card, index) => {
@@ -384,37 +398,44 @@
             ccSelect.appendChild(opt);
         });
 
-        let cardBalances = data.creditCards.map(() => 0);
+        // Track live computations
+        let cardDebtAccruals = data.creditCards.map(() => 0);
+        let bankDeductionsMap = data.savings.map(() => 0);
         let categoryTotals = { Food: 0, Transport: 0, Shopping: 0, Entertainment: 0, Bills: 0, Others: 0 };
 
-        // --- 1. EVALUATE & PROCESS ALL HISTORICAL EXPENSES ---
+        // --- 1. COMPUTE DEDUCTIONS AND RENDER EXPENSES ---
         const expListEl = document.getElementById('expenseList');
         expListEl.innerHTML = '';
         let totalFilteredMonthExpHKD = 0;
 
         data.expenses.forEach((item, idx) => {
-            // Check card tracking index dependencies
-            if (item.paymentMethod === 'Credit Card' && item.cardIndex !== undefined && cardBalances[item.cardIndex] !== undefined) {
+            const itemCostInHKD = item.amount * item.frozenRate;
+
+            // Process balance deduction rules dynamically
+            if (item.paymentMethod === 'Credit Card' && item.cardIndex !== null && cardDebtAccruals[item.cardIndex] !== undefined) {
                 const targetCard = data.creditCards[item.cardIndex];
-                const itemCostInHKD = item.amount * item.frozenRate;
                 const costInCardCurrency = itemCostInHKD / (liveRates[targetCard.currency] || 1);
-                cardBalances[item.cardIndex] += costInCardCurrency;
+                cardDebtAccruals[item.cardIndex] += costInCardCurrency;
+            } 
+            else if (item.paymentMethod === 'Bank Transfer' && item.bankAssetIndex !== null && bankDeductionsMap[item.bankAssetIndex] !== undefined) {
+                const targetBank = data.savings[item.bankAssetIndex];
+                const deductionInBankCurrency = itemCostInHKD / (liveRates[targetBank.currency] || 1);
+                bankDeductionsMap[item.bankAssetIndex] += deductionInBankCurrency;
             }
 
+            // Month Filter Render Limits
             if (item.periodMonth === selectedMonth) {
-                const hkdEquivalent = item.amount * item.frozenRate;
-                totalFilteredMonthExpHKD += hkdEquivalent;
-                
-                if(categoryTotals[item.category] !== undefined) {
-                    categoryTotals[item.category] += hkdEquivalent;
-                }
+                totalFilteredMonthExpHKD += itemCostInHKD;
+                if(categoryTotals[item.category] !== undefined) categoryTotals[item.category] += itemCostInHKD;
 
                 const li = document.createElement('li');
                 li.className = 'item-row';
                 
                 let pMethodLabel = item.paymentMethod;
                 if (item.paymentMethod === 'Credit Card') {
-                    pMethodLabel = `CC: ${data.creditCards[item.cardIndex]?.name || 'Linked Card'}`;
+                    pMethodLabel = `💳 CC: ${data.creditCards[item.cardIndex]?.name || 'Card'}`;
+                } else if (item.paymentMethod === 'Bank Transfer') {
+                    pMethodLabel = `🏦 Bank: ${data.savings[item.bankAssetIndex]?.name || 'Acct'}`;
                 }
 
                 li.innerHTML = `
@@ -423,7 +444,7 @@
                         <div class="subtext">${item.amount.toLocaleString(undefined,{minimumFractionDigits:2})} ${item.currency} &bull; via ${pMethodLabel}</div>
                     </div>
                     <div class="item-val">
-                        HK$ ${hkdEquivalent.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}
+                        HK$ ${itemCostInHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}
                         <button class="del-btn" onclick="deleteItem('expenses', ${idx})">&times;</button>
                     </div>
                 `;
@@ -434,13 +455,13 @@
 
         renderPieChart(categoryTotals);
 
-        // --- 2. RENDER ALL ACTIVE SYSTEM CREDIT CARDS (LIVE RATES) ---
+        // --- 2. RENDER LINKED CREDIT CARDS ---
         const ccListEl = document.getElementById('creditCardList');
         ccListEl.innerHTML = '';
         let totalCardDebtHKD = 0;
 
         data.creditCards.forEach((card, idx) => {
-            const outstandingAmt = cardBalances[idx];
+            const outstandingAmt = cardDebtAccruals[idx];
             const debtInHKD = outstandingAmt * (liveRates[card.currency] || 1);
             totalCardDebtHKD += debtInHKD;
 
@@ -449,7 +470,7 @@
             li.innerHTML = `
                 <div class="item-details">
                     <div class="name">${card.name}</div>
-                    <div class="subtext">${card.bank} &bull; Billing Currency: ${card.currency}</div>
+                    <div class="subtext">${card.bank} &bull; Currency: ${card.currency}</div>
                 </div>
                 <div class="item-val negative">
                     -${outstandingAmt.toLocaleString(undefined, {minimumFractionDigits: 2})} ${card.currency}
@@ -462,14 +483,16 @@
         if(data.creditCards.length === 0) ccListEl.innerHTML = '<li class="item-row subtext">No linked credit cards.</li>';
         document.getElementById('cardsTotal').innerText = `HK$ ${totalCardDebtHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
-        // --- 3. RENDER ALL SAVINGS WALLETS (LIVE RATES DAILY) ---
+        // --- 3. RENDER ALL SAVINGS WALLETS (WITH DYNAMIC DEBITS REMOVED) ---
         const bankListEl = document.getElementById('bankList');
         const investListEl = document.getElementById('investList');
         bankListEl.innerHTML = ''; investListEl.innerHTML = '';
         let totalSavingsHKD = 0;
 
         data.savings.forEach((item, idx) => {
-            const hkdVal = item.amount * (liveRates[item.currency] || 1);
+            // Deduct the dynamic calculated bank transfer expenses from initial pool balance
+            const runningBalance = item.amount - bankDeductionsMap[idx];
+            const hkdVal = runningBalance * (liveRates[item.currency] || 1);
             totalSavingsHKD += hkdVal;
             
             const li = document.createElement('li');
@@ -477,7 +500,7 @@
             li.innerHTML = `
                 <div class="item-details">
                     <div class="name">${item.name}</div>
-                    <div class="subtext">${item.amount.toLocaleString(undefined, {minimumFractionDigits: 2})} ${item.currency}</div>
+                    <div class="subtext">${runningBalance.toLocaleString(undefined, {minimumFractionDigits: 2})} ${item.currency} <span style="font-size:0.75rem; color:#94a3b8;">(Initial: ${item.amount})</span></div>
                 </div>
                 <div class="item-val">
                     HK$ ${hkdVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
@@ -538,7 +561,9 @@
         const currentExecutionRate = liveRates[selectedCurrency] || 1;
         const targetPeriodMonth = new Date().toISOString().substring(0, 7); 
         const pMethod = document.getElementById('expPaymentMethod').value;
-        const chosenCardIndex = pMethod === 'Credit Card' ? document.getElementById('expChosenCard').value : null;
+        
+        const chosenCardIndex = pMethod === 'Credit Card' ? parseInt(document.getElementById('expChosenCard').value) : null;
+        const chosenBankIndex = pMethod === 'Bank Transfer' ? parseInt(document.getElementById('expChosenBank').value) : null;
 
         data.expenses.push({
             name: document.getElementById('expName').value,
@@ -547,6 +572,7 @@
             currency: selectedCurrency,
             paymentMethod: pMethod,
             cardIndex: chosenCardIndex,
+            bankAssetIndex: chosenBankIndex,
             frozenRate: currentExecutionRate,      
             periodMonth: targetPeriodMonth         
         });
@@ -557,47 +583,4 @@
         updateUI();
         document.getElementById('expenseForm').reset();
         document.getElementById('creditCardSelectGroup').style.display = 'none';
-    });
-
-    document.getElementById('savingsForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        data.savings.push({
-            type: document.getElementById('assetType').value,
-            name: document.getElementById('assetName').value,
-            amount: parseFloat(document.getElementById('assetAmount').value),
-            currency: document.getElementById('assetCurrency').value
-        });
-        updateUI();
-        document.getElementById('savingsForm').reset();
-        toggleAssetLabel();
-    });
-
-    document.getElementById('cardForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        data.creditCards.push({
-            name: document.getElementById('cardName').value,
-            bank: document.getElementById('cardBank').value,
-            currency: document.getElementById('cardCurrency').value
-        });
-        updateUI();
-        document.getElementById('cardForm').reset();
-    });
-
-    function deleteItem(category, index) {
-        data[category].splice(index, 1);
-        if(category === 'expenses') buildDropdownMonths();
-        updateUI();
-    }
-
-    function clearData(category) {
-        if(confirm(`Permanently clear your active dataset history for ${category}?`)) {
-            data[category] = [];
-            if(category === 'expenses') buildDropdownMonths();
-            updateUI();
-        }
-    }
-
-    fetchRates();
-</script>
-</body>
-</html>
+        document.getElementById('bankSelectGroup
