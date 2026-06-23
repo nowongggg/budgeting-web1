@@ -2,134 +2,173 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Multi-Currency Wealth, Credit & Analytics Tracker</title>
     
+    <!-- Mobile App Specific Configurations (PWA Optimization Headers) -->
     <link rel="manifest" href="./manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Tracker">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2454/2454269.png">
     
+    <!-- Chart.js CDN for the Expense Pie Chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         :root {
-            --bg-color: #f4f6f9;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --primary: #2563eb;
             --success: #10b981;
             --warning: #f59e0b;
-            --text: #1e293b;
+            --purple: #8b5cf6;
+            --text: #0f172a;
+            --subtext: #64748b;
             --border: #e2e8f0;
             --danger: #ef4444;
         }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text);
             margin: 0;
-            padding: 20px;
+            padding: 12px 12px 40px 12px;
             display: flex;
             justify-content: center;
         }
-        .container { width: 100%; max-width: 650px; }
-        h1 { text-align: center; font-size: 1.5rem; margin-bottom: 20px; }
+        .container { width: 100%; max-width: 600px; }
+        h1 { text-align: center; font-size: 1.3rem; margin: 10px 0 15px 0; font-weight: 700; color: #1e293b; }
         
-        .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
+        /* Mobile-First Navigation Sticky/Top Tabs Layout */
+        .tabs { display: flex; gap: 4px; margin-bottom: 16px; background: #e2e8f0; padding: 4px; border-radius: 10px; }
         .tab-btn {
-            flex: 1; padding: 12px 5px; background: #e2e8f0; border: none;
-            border-radius: 8px; font-weight: 600; cursor: pointer; color: #64748b;
-            font-size: 0.9rem; transition: all 0.2s;
+            flex: 1; padding: 10px 2px; background: transparent; border: none;
+            border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--subtext);
+            font-size: 0.8rem; transition: all 0.2s ease; text-align: center;
         }
-        .tab-btn.active { background: var(--primary); color: white; }
+        .tab-btn.active { background: var(--card-bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
+        /* Card Dashboards Optimized for Thumb Reading */
         .total-card {
-            background: var(--primary); color: white; padding: 20px;
-            border-radius: 12px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            color: white; padding: 18px; border-radius: 14px; text-align: center; 
+            box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.15); margin-bottom: 16px;
         }
-        .total-card.savings-theme { background: var(--success); }
-        .total-card.cards-theme { background: var(--warning); }
-        .total-card h2 { margin: 0; font-size: 1rem; opacity: 0.9; font-weight: 400; }
-        .total-amount { font-size: 2.2rem; font-weight: 700; margin-top: 5px; }
+        .total-card.expenses-theme { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+        .total-card.savings-theme { background: linear-gradient(135deg, #10b981, #047857); box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.15); }
+        .total-card.cards-theme { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px -2px rgba(245, 158, 11, 0.15); }
+        .total-card.stocks-theme { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 4px 12px -2px rgba(139, 92, 246, 0.15); }
+        
+        .total-card h2 { margin: 0; font-size: 0.85rem; opacity: 0.9; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .total-amount { font-size: 1.8rem; font-weight: 700; margin-top: 4px; letter-spacing: -0.5px; }
         
         .card {
-            background: var(--card-bg); padding: 20px; border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid var(--border);
+            background: var(--card-bg); padding: 16px; border-radius: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03); margin-bottom: 16px; border: 1px solid var(--border);
         }
-        .form-group { margin-bottom: 15px; }
-        .form-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        
+        /* High-accessibility Mobile Form Inputs */
+        .form-group { margin-bottom: 12px; }
+        .form-row { display: flex; gap: 8px; margin-bottom: 12px; }
         .form-row .form-group { flex: 1; margin-bottom: 0; }
-        label { display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 600; }
+        label { display: block; margin-bottom: 4px; font-size: 0.8rem; font-weight: 600; color: #475569; }
         input, select {
-            width: 100%; padding: 10px; border: 1px solid var(--border);
-            border-radius: 6px; box-sizing: border-box; font-size: 1rem;
+            width: 100%; padding: 11px; border: 1px solid var(--border);
+            border-radius: 8px; box-sizing: border-box; font-size: 0.95rem;
+            background-color: #f8fafc; color: var(--text); outline: none; transition: border-color 0.15s;
         }
+        input:focus, select:focus { border-color: #cbd5e1; background-color: #fff; }
+        
         button.submit-btn {
-            width: 100%; background: var(--primary); color: white; border: none;
-            padding: 12px; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer;
+            width: 100%; color: white; border: none; padding: 12px; border-radius: 8px; 
+            font-size: 0.95rem; font-weight: 600; cursor: pointer; margin-top: 4px;
+            transition: opacity 0.1s;
         }
+        button.submit-btn:active { opacity: 0.85; }
+        .expenses-theme button.submit-btn { background: var(--primary); }
         .savings-theme button.submit-btn { background: var(--success); }
         .cards-theme button.submit-btn { background: var(--warning); color: #000; }
+        .stocks-theme button.submit-btn { background: var(--purple); }
         
-        .list-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 8px; margin-bottom: 10px; }
-        .section-title { font-weight: 700; font-size: 1.1rem; margin: 20px 0 10px 0; color: #475569;}
-        .clear-btn { background: none; color: var(--danger); border: none; width: auto; padding: 0; font-size: 0.85rem; cursor: pointer; }
+        .list-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 10px; }
+        .list-header h3 { margin: 0; font-size: 0.95rem; font-weight: 700; color: #334155; }
+        .section-title { font-weight: 700; font-size: 0.85rem; margin: 16px 0 8px 0; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;}
+        
+        .clear-btn { background: none; color: var(--danger); border: none; width: auto; padding: 0; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
         .item-list { list-style: none; padding: 0; margin: 0; }
+        
+        /* Compressed Row Items for Mobile Screen Real Estate */
         .item-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid var(--border);
+            padding: 10px 0; border-bottom: 1px solid #f1f5f9;
         }
         .item-row:last-child { border-bottom: none; }
-        .item-details .name { font-weight: 600; }
-        .item-details .subtext { font-size: 0.8rem; color: #64748b; margin-top: 2px; }
-        .item-val { font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 10px; }
+        .item-details .name { font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 4px; }
+        .item-details .subtext { font-size: 0.75rem; color: var(--subtext); margin-top: 1px; }
+        .item-val { font-weight: 700; font-size: 0.9rem; color: var(--text); text-align: right; }
+        .item-val-wrapper { display: flex; align-items: center; gap: 8px; }
         .negative { color: var(--danger); }
-        .badge { display: inline-block; padding: 2px 6px; font-size: 0.75rem; font-weight: 600; border-radius: 4px; background: #e2e8f0; color: #475569; margin-left: 5px; }
-        .del-btn { background: none; color: var(--danger); border: none; cursor: pointer; font-size: 1.1rem; padding: 0 5px; }
         
-        .chart-container { max-width: 280px; margin: 0 auto 20px auto; position: relative; }
+        .badge { display: inline-block; padding: 1px 5px; font-size: 0.7rem; font-weight: 600; border-radius: 4px; background: #e2e8f0; color: #475569; }
+        .badge.hk-badge { background: #fee2e2; color: #991b1b; }
+        .badge.us-badge { background: #dcfce7; color: #166534; }
+        
+        .del-btn { background: none; color: var(--danger); border: none; cursor: pointer; font-size: 1.2rem; padding: 0 4px; line-height: 1; }
+        .chart-container { max-width: 220px; margin: 0 auto 10px auto; position: relative; }
+        
+        /* Market Switch Toggle CSS */
+        .market-selector {
+            display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 8px; margin-bottom: 12px;
+        }
+        .market-option {
+            flex: 1; text-align: center; padding: 8px; font-size: 0.8rem; font-weight: 600;
+            border-radius: 6px; cursor: pointer; color: var(--subtext); transition: all 0.15s;
+        }
+        .market-option.active.hk { background: #ef4444; color: white; }
+        .market-option.active.us { background: #10b981; color: white; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Personal Multi-Currency Tracker</h1>
+    <h1>Wealth & Analytics Tracker</h1>
     
+    <!-- PWA Mobile Navigation Bar -->
     <div class="tabs">
         <button class="tab-btn active" id="btn-exp" onclick="switchTab('expenses-tab')">Expenses</button>
         <button class="tab-btn" id="btn-sav" onclick="switchTab('savings-tab')">Savings</button>
+        <button class="tab-btn" id="btn-stk" onclick="switchTab('stocks-tab')">Stocks</button>
         <button class="tab-btn" id="btn-crd" onclick="switchTab('cards-tab')">Credit Cards</button>
     </div>
 
-    <div id="expenses-tab" class="tab-content active">
-        <div class="total-card">
+    <!-- ================= EXPENSES TAB ================= -->
+    <div id="expenses-tab" class="tab-content active expenses-theme">
+        <div class="total-card expenses-theme">
             <h2>Total Expenses (<span id="currentMonthLabel">Selected Month</span>)</h2>
             <div class="total-amount" id="expenseTotal">HK$ 0.00</div>
         </div>
 
-        <div class="card" style="padding: 12px 20px;">
+        <div class="card" style="padding: 10px 16px;">
             <label>📅 View Statement Month</label>
             <select id="monthFilter" onchange="updateUI()"></select>
         </div>
 
         <div class="card" id="chartCard" style="display:none;">
-            <h3 style="margin-top:0; text-align:center; font-size:1rem; color:#475569;">Monthly Breakdown Chart</h3>
-            <div class="chart-container">
-                <canvas id="categoryChart"></canvas>
-            </div>
+            <div class="chart-container"><canvas id="categoryChart"></canvas></div>
         </div>
 
         <div class="card">
             <form id="expenseForm">
                 <div class="form-row">
-                    <div class="form-group" style="flex: 2;">
+                    <div class="form-group" style="flex: 1.8;">
                         <label>Item Description</label>
-                        <input type="text" id="expName" placeholder="e.g., Lunch, Slabs" required>
+                        <input type="text" id="expName" placeholder="MTR, Lunch, Slabs" required>
                     </div>
-                    <div class="form-group" style="flex: 1;">
+                    <div class="form-group" style="flex: 1.2;">
                         <label>Category</label>
                         <select id="expCategory">
                             <option value="Food">🍔 Food</option>
@@ -142,16 +181,15 @@
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group" style="flex: 2;">
+                    <div class="form-group" style="flex: 1.8;">
                         <label>Amount</label>
                         <input type="number" id="expAmount" step="0.01" placeholder="0.00" required>
                     </div>
-                    <div class="form-group" style="flex: 1;">
+                    <div class="form-group" style="flex: 1.2;">
                         <label>Currency</label>
                         <select id="expCurrency" class="curr-select"></select>
                     </div>
                 </div>
-                
                 <div class="form-group">
                     <label>Payment Method</label>
                     <select id="expPaymentMethod" onchange="handlePaymentMethodChange()">
@@ -160,33 +198,31 @@
                         <option value="Credit Card">💳 Credit Card</option>
                     </select>
                 </div>
-
                 <div class="form-group" id="bankSelectGroup" style="display: none;">
                     <label style="color: var(--success);">Select Source Bank Account</label>
                     <select id="expChosenBank"></select>
                 </div>
-
                 <div class="form-group" id="creditCardSelectGroup" style="display: none;">
                     <label style="color: var(--primary);">Choose Credit Card Used</label>
                     <select id="expChosenCard"></select>
                 </div>
-
                 <button type="submit" class="submit-btn">Add Expense</button>
             </form>
         </div>
 
         <div class="card">
             <div class="list-header">
-                <h3>Expense Ledger Logs</h3>
+                <h3>Expense Logs</h3>
                 <button class="clear-btn" onclick="clearData('expenses')">Clear All</button>
             </div>
             <ul class="item-list" id="expenseList"></ul>
         </div>
     </div>
 
+    <!-- ================= SAVINGS TAB ================= -->
     <div id="savings-tab" class="tab-content savings-theme">
         <div class="total-card savings-theme">
-            <h2>Total Savings Assets (Live Rates)</h2>
+            <h2>Total Savings & Equities</h2>
             <div class="total-amount" id="savingsTotal">HK$ 0.00</div>
         </div>
 
@@ -196,7 +232,7 @@
                     <label>Asset Type</label>
                     <select id="assetType" onchange="toggleAssetLabel()">
                         <option value="Bank">Bank Account</option>
-                        <option value="Investment">Investment Portfolio / App</option>
+                        <option value="Investment">Other Cash Investments / Apps</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -204,16 +240,16 @@
                     <input type="text" id="assetName" placeholder="e.g., HSBC, ZA Bank" required>
                 </div>
                 <div class="form-row">
-                    <div class="form-group" style="flex: 2;">
+                    <div class="form-group" style="flex: 1.8;">
                         <label>Initial Balance Amount</label>
                         <input type="number" id="assetAmount" step="0.01" placeholder="0.00" required>
                     </div>
-                    <div class="form-group" style="flex: 1;">
+                    <div class="form-group" style="flex: 1.2;">
                         <label>Currency</label>
                         <select id="assetCurrency" class="curr-select"></select>
                     </div>
                 </div>
-                <button type="submit" class="submit-btn">Add Asset</button>
+                <button type="submit" class="submit-btn">Add Cash Asset</button>
             </form>
         </div>
 
@@ -224,14 +260,59 @@
             </div>
             <div class="section-title">🏦 Cash & Bank Accounts</div>
             <ul class="item-list" id="bankList"></ul>
-            <div class="section-title">📈 Investments & Brokerage</div>
+            <div class="section-title">📈 Linked Live Stock Portfolios</div>
+            <ul class="item-list" id="autoStockValuationList"></ul>
+            <div class="section-title">💼 Other Brokerage & Fixed Items</div>
             <ul class="item-list" id="investList"></ul>
         </div>
     </div>
 
+    <!-- ================= STOCKS TAB (NEW) ================= -->
+    <div id="stocks-tab" class="tab-content stocks-theme">
+        <div class="total-card stocks-theme">
+            <h2>Stock Portfolio Valuation</h2>
+            <div class="total-amount" id="stocksTotal">HK$ 0.00</div>
+        </div>
+
+        <div class="card">
+            <form id="stockForm">
+                <label>Target Stock Market</label>
+                <div class="market-selector">
+                    <div class="market-option active hk" id="market-hk" onclick="setMarket('HK')">Hong Kong (HKD)</div>
+                    <div class="market-option" id="market-us" onclick="setMarket('US')">United States (USD)</div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1.5;">
+                        <label>Stock Ticker / Symbol</label>
+                        <input type="text" id="stockTicker" placeholder="e.g., 0700 or AAPL" required>
+                    </div>
+                    <div class="form-group" style="flex: 1.5;">
+                        <label>Shares Owned</label>
+                        <input type="number" id="stockShares" step="0.0001" placeholder="0" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Current Market Price per Share</label>
+                    <input type="number" id="stockPrice" step="0.0001" placeholder="0.00" required>
+                </div>
+                <button type="submit" class="submit-btn">Save Stock Position</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="list-header">
+                <h3>Active Stock Holdings</h3>
+                <button class="clear-btn" onclick="clearData('stocks')">Clear All</button>
+            </div>
+            <ul class="item-list" id="stockList"></ul>
+        </div>
+    </div>
+
+    <!-- ================= CREDIT CARDS TAB ================= -->
     <div id="cards-tab" class="tab-content cards-theme">
         <div class="total-card cards-theme">
-            <h2 style="color: #000;">Total Outstanding Credit Debt (Live Rates)</h2>
+            <h2 style="color: #000;">Total Outstanding Credit Debt</h2>
             <div class="total-amount" id="cardsTotal" style="color: #000;">HK$ 0.00</div>
         </div>
 
@@ -264,19 +345,21 @@
 </div>
 
 <script>
-    // PWA Service Worker Registration Routine
+    // PWA Engine Routine Configuration
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')
-        .then(() => console.log("PWA Engine active and stable."))
-        .catch(err => console.log("Service Worker validation paused.", err));
+        .then(() => console.log("PWA Engine structure synchronized."))
+        .catch(err => console.log("PWA Engine tracking holding pattern.", err));
     }
 
     let data = {
-        expenses: JSON.parse(localStorage.getItem('cc_expenses_v4')) || [],
-        savings: JSON.parse(localStorage.getItem('cc_savings_v4')) || [],
-        creditCards: JSON.parse(localStorage.getItem('cc_cards_v4')) || []
+        expenses: JSON.parse(localStorage.getItem('w_expenses_v5')) || [],
+        savings: JSON.parse(localStorage.getItem('w_savings_v5')) || [],
+        stocks: JSON.parse(localStorage.getItem('w_stocks_v5')) || [],
+        creditCards: JSON.parse(localStorage.getItem('w_cards_v5')) || []
     };
 
+    let activeStockMarket = 'HK'; // Default entry flag selector
     const currencyOptions = ['HKD', 'USD', 'JPY', 'EUR', 'GBP', 'CNY', 'TWD', 'KRW'];
     let liveRates = { HKD: 1, USD: 7.84, JPY: 0.049, EUR: 8.42, GBP: 9.95, CNY: 1.08, TWD: 0.24, KRW: 0.0056 };
     let categoryPieChart = null;
@@ -296,13 +379,26 @@
         
         if(tabId === 'expenses-tab') document.getElementById('btn-exp').classList.add('active');
         if(tabId === 'savings-tab') document.getElementById('btn-sav').classList.add('active');
+        if(tabId === 'stocks-tab') document.getElementById('btn-stk').classList.add('active');
         if(tabId === 'cards-tab') document.getElementById('btn-crd').classList.add('active');
+    }
+
+    function setMarket(market) {
+        activeStockMarket = market;
+        document.getElementById('market-hk').classList.remove('active', 'hk');
+        document.getElementById('market-us').classList.remove('active', 'us');
+        
+        if(market === 'HK') {
+            document.getElementById('market-hk').classList.add('active', 'hk');
+        } else {
+            document.getElementById('market-us').classList.add('active', 'us');
+        }
     }
 
     function toggleAssetLabel() {
         const type = document.getElementById('assetType').value;
-        document.getElementById('nameLabel').innerText = type === 'Bank' ? 'Bank Name' : 'Investment Platform / App Name';
-        document.getElementById('assetName').placeholder = type === 'Bank' ? 'e.g., HSBC, ZA Bank' : 'e.g., Futu, IBKR';
+        document.getElementById('nameLabel').innerText = type === 'Bank' ? 'Bank Name' : 'Investment Platform Name';
+        document.getElementById('assetName').placeholder = type === 'Bank' ? 'e.g., HSBC, Hang Seng' : 'e.g., Futu, IBKR';
     }
 
     function handlePaymentMethodChange() {
@@ -316,14 +412,14 @@
         if (method === 'Bank Transfer') {
             const totalBanksCount = data.savings.filter(s => s.type === 'Bank').length;
             if (totalBanksCount === 0) {
-                alert("You haven't listed any bank accounts on your Savings tab yet! Please add a bank account asset first.");
+                alert("Please add a bank account asset to your Savings tab first!");
                 document.getElementById('expPaymentMethod').value = 'Cash';
             } else {
                 bankGroup.style.display = 'block';
             }
         } else if (method === 'Credit Card') {
             if (data.creditCards.length === 0) {
-                alert("You haven't linked any credit cards yet! Please head to the Credit Cards tab to configure one.");
+                alert("Please add a credit card to your Credit Cards tab first!");
                 document.getElementById('expPaymentMethod').value = 'Cash';
             } else {
                 ccGroup.style.display = 'block';
@@ -343,7 +439,7 @@
                 });
             }
         } catch (e) {
-            console.log("Offline or baseline fallback engine context running.", e);
+            console.log("Offline pipeline active. Utilizing fallback engines.");
         }
         buildDropdownMonths();
         updateUI();
@@ -377,9 +473,10 @@
     }
 
     function updateUI() {
-        localStorage.setItem('cc_expenses_v4', JSON.stringify(data.expenses));
-        localStorage.setItem('cc_savings_v4', JSON.stringify(data.savings));
-        localStorage.setItem('cc_cards_v4', JSON.stringify(data.creditCards));
+        localStorage.setItem('w_expenses_v5', JSON.stringify(data.expenses));
+        localStorage.setItem('w_savings_v5', JSON.stringify(data.savings));
+        localStorage.setItem('w_stocks_v5', JSON.stringify(data.stocks));
+        localStorage.setItem('w_cards_v5', JSON.stringify(data.creditCards));
 
         const selectedMonth = document.getElementById('monthFilter').value || new Date().toISOString().substring(0, 7);
         
@@ -389,6 +486,7 @@
             labelEl.innerText = parsedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
         }
 
+        // Reconstruct reference drops
         const bankSelect = document.getElementById('expChosenBank');
         bankSelect.innerHTML = '';
         data.savings.forEach((asset, originalIndex) => {
@@ -413,6 +511,7 @@
         let bankDeductionsMap = data.savings.map(() => 0);
         let categoryTotals = { Food: 0, Transport: 0, Shopping: 0, Entertainment: 0, Bills: 0, Others: 0 };
 
+        // --- 1. RENDER EXPENSES ---
         const expListEl = document.getElementById('expenseList');
         expListEl.innerHTML = '';
         let totalFilteredMonthExpHKD = 0;
@@ -422,13 +521,11 @@
 
             if (item.paymentMethod === 'Credit Card' && item.cardIndex !== null && cardDebtAccruals[item.cardIndex] !== undefined) {
                 const targetCard = data.creditCards[item.cardIndex];
-                const costInCardCurrency = itemCostInHKD / (liveRates[targetCard.currency] || 1);
-                cardDebtAccruals[item.cardIndex] += costInCardCurrency;
+                cardDebtAccruals[item.cardIndex] += itemCostInHKD / (liveRates[targetCard.currency] || 1);
             } 
             else if (item.paymentMethod === 'Bank Transfer' && item.bankAssetIndex !== null && bankDeductionsMap[item.bankAssetIndex] !== undefined) {
                 const targetBank = data.savings[item.bankAssetIndex];
-                const deductionInBankCurrency = itemCostInHKD / (liveRates[targetBank.currency] || 1);
-                bankDeductionsMap[item.bankAssetIndex] += deductionInBankCurrency;
+                bankDeductionsMap[item.bankAssetIndex] += itemCostInHKD / (liveRates[targetBank.currency] || 1);
             }
 
             if (item.periodMonth === selectedMonth) {
@@ -437,21 +534,15 @@
 
                 const li = document.createElement('li');
                 li.className = 'item-row';
-                
-                let pMethodLabel = item.paymentMethod;
-                if (item.paymentMethod === 'Credit Card') {
-                    pMethodLabel = `💳 CC: ${data.creditCards[item.cardIndex]?.name || 'Card'}`;
-                } else if (item.paymentMethod === 'Bank Transfer') {
-                    pMethodLabel = `🏦 Bank: ${data.savings[item.bankAssetIndex]?.name || 'Acct'}`;
-                }
+                let pMethodLabel = item.paymentMethod === 'Credit Card' ? `💳 ${data.creditCards[item.cardIndex]?.name || 'CC'}` : (item.paymentMethod === 'Bank Transfer' ? `🏦 ${data.savings[item.bankAssetIndex]?.name || 'Bank'}` : '💵 Cash');
 
                 li.innerHTML = `
                     <div class="item-details">
                         <div class="name">${item.name} <span class="badge">${item.category}</span></div>
-                        <div class="subtext">${item.amount.toLocaleString(undefined,{minimumFractionDigits:2})} ${item.currency} &bull; via ${pMethodLabel}</div>
+                        <div class="subtext">${item.amount.toLocaleString(undefined,{minimumFractionDigits:2})} ${item.currency} &bull; ${pMethodLabel}</div>
                     </div>
-                    <div class="item-val">
-                        HK$ ${itemCostInHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}
+                    <div class="item-val-wrapper">
+                        <div class="item-val">HK$ ${itemCostInHKD.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
                         <button class="del-btn" onclick="deleteItem('expenses', ${idx})">&times;</button>
                     </div>
                 `;
@@ -459,9 +550,97 @@
             }
         });
         document.getElementById('expenseTotal').innerText = `HK$ ${totalFilteredMonthExpHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
         renderPieChart(categoryTotals);
 
+        // --- 2. RENDER STOCKS TAB DATA ---
+        const stockListEl = document.getElementById('stockList');
+        stockListEl.innerHTML = '';
+        let totalStocksHKD = 0;
+        let totalHksHKD = 0;
+        let totalUssHKD = 0;
+
+        data.stocks.forEach((stock, idx) => {
+            const stockValueInNativeCurrency = stock.shares * stock.price;
+            const stockValueInHKD = stock.market === 'US' ? stockValueInNativeCurrency * liveRates['USD'] : stockValueInNativeCurrency;
+            
+            totalStocksHKD += stockValueInHKD;
+            if(stock.market === 'HK') totalHksHKD += stockValueInHKD;
+            else totalUssHKD += stockValueInHKD;
+
+            const li = document.createElement('li');
+            li.className = 'item-row';
+            const marketBadge = stock.market === 'HK' ? '<span class="badge hk-badge">HK</span>' : '<span class="badge us-badge">US</span>';
+            const nativeCurrencySymbol = stock.market === 'US' ? 'USD' : 'HKD';
+
+            li.innerHTML = `
+                <div class="item-details">
+                    <div class="name">${stock.ticker.toUpperCase()} ${marketBadge}</div>
+                    <div class="subtext">${stock.shares.toLocaleString()} shares &bull; @${stock.price.toLocaleString()} ${nativeCurrencySymbol}</div>
+                </div>
+                <div class="item-val-wrapper">
+                    <div class="item-val">
+                        <div>${stockValueInNativeCurrency.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})} ${nativeCurrencySymbol}</div>
+                        <div class="subtext">(HK$ ${stockValueInHKD.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})})</div>
+                    </div>
+                    <button class="del-btn" onclick="deleteItem('stocks', ${idx})">&times;</button>
+                </div>
+            `;
+            stockListEl.appendChild(li);
+        });
+        if(data.stocks.length === 0) stockListEl.innerHTML = '<li class="item-row subtext">No logged stock positions.</li>';
+        document.getElementById('stocksTotal').innerText = `HK$ ${totalStocksHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+        // --- 3. RENDER ALL SAVINGS & LINKED AUTO STOCKS WALLETS ---
+        const bankListEl = document.getElementById('bankList');
+        const investListEl = document.getElementById('investList');
+        const autoStockValuationListEl = document.getElementById('autoStockValuationList');
+        
+        bankListEl.innerHTML = ''; investListEl.innerHTML = ''; autoStockValuationListEl.innerHTML = '';
+        let totalSavingsHKD = totalStocksHKD; // Seed balance calculations automatically with our equity vectors
+
+        // Insert Auto-Calculated Portfolio Vectors right into Savings layout
+        if(totalStocksHKD > 0) {
+            const stockLi = document.createElement('li');
+            stockLi.className = 'item-row';
+            stockLi.innerHTML = `
+                <div class="item-details">
+                    <div class="name">Live Equities Aggregation</div>
+                    <div class="subtext">HK Market: HK$ ${totalHksHKD.toLocaleString(undefined,{maximumFractionDigits:0})} | US Market: US$ ${(totalUssHKD/liveRates['USD']).toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+                </div>
+                <div class="item-val" style="padding-right: 12px; color: var(--purple);">
+                    HK$ ${totalStocksHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                </div>
+            `;
+            autoStockValuationListEl.appendChild(stockLi);
+        } else {
+            autoStockValuationListEl.innerHTML = '<li class="item-row subtext">No active equity investments configured.</li>';
+        }
+
+        data.savings.forEach((item, idx) => {
+            const runningBalance = item.amount - bankDeductionsMap[idx];
+            const hkdVal = runningBalance * (liveRates[item.currency] || 1);
+            totalSavingsHKD += hkdVal;
+            
+            const li = document.createElement('li');
+            li.className = 'item-row';
+            li.innerHTML = `
+                <div class="item-details">
+                    <div class="name">${item.name}</div>
+                    <div class="subtext">${runningBalance.toLocaleString(undefined, {minimumFractionDigits: 2})} ${item.currency}</div>
+                </div>
+                <div class="item-val-wrapper">
+                    <div class="item-val">HK$ ${hkdVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                    <button class="del-btn" onclick="deleteItem('savings', ${idx})">&times;</button>
+                </div>
+            `;
+            if(item.type === 'Bank') bankListEl.appendChild(li);
+            else investListEl.appendChild(li);
+        });
+        if(bankListEl.children.length === 0) bankListEl.innerHTML = '<li class="item-row subtext">No bank accounts linked.</li>';
+        if(investListEl.children.length === 0) investListEl.innerHTML = '<li class="item-row subtext">No other items configured.</li>';
+        document.getElementById('savingsTotal').innerText = `HK$ ${totalSavingsHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+        // --- 4. RENDER CREDIT CARDS ---
         const ccListEl = document.getElementById('creditCardList');
         ccListEl.innerHTML = '';
         let totalCardDebtHKD = 0;
@@ -476,61 +655,30 @@
             li.innerHTML = `
                 <div class="item-details">
                     <div class="name">${card.name}</div>
-                    <div class="subtext">${card.bank} &bull; Currency: ${card.currency}</div>
+                    <div class="subtext">${card.bank} &bull; ${card.currency}</div>
                 </div>
-                <div class="item-val negative">
-                    -${outstandingAmt.toLocaleString(undefined, {minimumFractionDigits: 2})} ${card.currency}
-                    <div class="subtext" style="font-weight:normal;">(HK$ ${debtInHKD.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})})</div>
+                <div class="item-val-wrapper">
+                    <div class="item-val negative">
+                        <div>-${outstandingAmt.toLocaleString(undefined, {minimumFractionDigits: 2})} ${card.currency}</div>
+                        <div class="subtext">(HK$ ${debtInHKD.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})})</div>
+                    </div>
                     <button class="del-btn" onclick="deleteItem('creditCards', ${idx})">&times;</button>
                 </div>
             `;
             ccListEl.appendChild(li);
         });
-        if(data.creditCards.length === 0) ccListEl.innerHTML = '<li class="item-row subtext">No linked credit cards.</li>';
+        if(data.creditCards.length === 0) ccListEl.innerHTML = '<li class="item-row subtext">No linked cards.</li>';
         document.getElementById('cardsTotal').innerText = `HK$ ${totalCardDebtHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
-        const bankListEl = document.getElementById('bankList');
-        const investListEl = document.getElementById('investList');
-        bankListEl.innerHTML = ''; investListEl.innerHTML = '';
-        let totalSavingsHKD = 0;
-
-        data.savings.forEach((item, idx) => {
-            const runningBalance = item.amount - bankDeductionsMap[idx];
-            const hkdVal = runningBalance * (liveRates[item.currency] || 1);
-            totalSavingsHKD += hkdVal;
-            
-            const li = document.createElement('li');
-            li.className = 'item-row';
-            li.innerHTML = `
-                <div class="item-details">
-                    <div class="name">${item.name}</div>
-                    <div class="subtext">${runningBalance.toLocaleString(undefined, {minimumFractionDigits: 2})} ${item.currency} <span style="font-size:0.75rem; color:#94a3b8;">(Initial: ${item.amount})</span></div>
-                </div>
-                <div class="item-val">
-                    HK$ ${hkdVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                    <button class="del-btn" onclick="deleteItem('savings', ${idx})">&times;</button>
-                </div>
-            `;
-            if(item.type === 'Bank') bankListEl.appendChild(li);
-            else investListEl.appendChild(li);
-        });
-        if(bankListEl.children.length === 0) bankListEl.innerHTML = '<li class="item-row subtext">No accounts listed.</li>';
-        if(investListEl.children.length === 0) investListEl.innerHTML = '<li class="item-row subtext">No portfolios listed.</li>';
-        document.getElementById('savingsTotal').innerText = `HK$ ${totalSavingsHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     }
 
     function renderPieChart(totalsData) {
         const chartCard = document.getElementById('chartCard');
-        const labels = Object.keys(totalsData);
         const values = Object.values(totalsData);
-        
-        const absoluteSum = values.reduce((a, b) => a + b, 0);
-        if (absoluteSum === 0) {
+        if (values.reduce((a, b) => a + b, 0) === 0) {
             chartCard.style.display = 'none';
             return;
         }
         chartCard.style.display = 'block';
-
         const ctx = document.getElementById('categoryChart').getContext('2d');
         
         if (categoryPieChart) {
@@ -540,7 +688,7 @@
             categoryPieChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: labels,
+                    labels: Object.keys(totalsData),
                     datasets: [{
                         data: values,
                         backgroundColor: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#64748b'],
@@ -550,24 +698,18 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
-                    }
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
                 }
             });
         }
     }
 
+    // Form submission processing pipelines
     document.getElementById('expenseForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        
         const selectedCurrency = document.getElementById('expCurrency').value;
-        const currentExecutionRate = liveRates[selectedCurrency] || 1;
         const targetPeriodMonth = new Date().toISOString().substring(0, 7); 
         const pMethod = document.getElementById('expPaymentMethod').value;
-        
-        const chosenCardIndex = pMethod === 'Credit Card' ? parseInt(document.getElementById('expChosenCard').value) : null;
-        const chosenBankIndex = pMethod === 'Bank Transfer' ? parseInt(document.getElementById('expChosenBank').value) : null;
 
         data.expenses.push({
             name: document.getElementById('expName').value,
@@ -575,15 +717,14 @@
             amount: parseFloat(document.getElementById('expAmount').value),
             currency: selectedCurrency,
             paymentMethod: pMethod,
-            cardIndex: chosenCardIndex,
-            bankAssetIndex: chosenBankIndex,
-            frozenRate: currentExecutionRate,      
+            cardIndex: pMethod === 'Credit Card' ? parseInt(document.getElementById('expChosenCard').value) : null,
+            bankAssetIndex: pMethod === 'Bank Transfer' ? parseInt(document.getElementById('expChosenBank').value) : null,
+            frozenRate: liveRates[selectedCurrency] || 1,      
             periodMonth: targetPeriodMonth         
         });
 
         buildDropdownMonths();
         document.getElementById('monthFilter').value = targetPeriodMonth;
-        
         updateUI();
         document.getElementById('expenseForm').reset();
         document.getElementById('creditCardSelectGroup').style.display = 'none';
@@ -601,6 +742,18 @@
         updateUI();
         document.getElementById('savingsForm').reset();
         toggleAssetLabel();
+    });
+
+    document.getElementById('stockForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        data.stocks.push({
+            market: activeStockMarket,
+            ticker: document.getElementById('stockTicker').value.trim(),
+            shares: parseFloat(document.getElementById('stockShares').value),
+            price: parseFloat(document.getElementById('stockPrice').value)
+        });
+        updateUI();
+        document.getElementById('stockForm').reset();
     });
 
     document.getElementById('cardForm').addEventListener('submit', (e) => {
@@ -621,7 +774,7 @@
     }
 
     function clearData(category) {
-        if(confirm(`Permanently clear your active dataset history for ${category}?`)) {
+        if(confirm(`Permanently clear records for ${category}?`)) {
             data[category] = [];
             if(category === 'expenses') buildDropdownMonths();
             updateUI();
