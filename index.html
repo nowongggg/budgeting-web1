@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Currency Wealth Tracker</title>
+    <title>Multi-Currency Wealth, Credit & Analytics Tracker</title>
+    <!-- Chart.js CDN for the Expense Pie Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         :root {
             --bg-color: #f4f6f9;
             --card-bg: #ffffff;
             --primary: #2563eb;
             --success: #10b981;
+            --warning: #f59e0b;
             --text: #1e293b;
             --border: #e2e8f0;
             --danger: #ef4444;
@@ -29,142 +32,150 @@
         }
         h1 { text-align: center; font-size: 1.5rem; margin-bottom: 20px; }
         
-        /* Navigation Tabs */
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
         .tab-btn {
-            flex: 1;
-            padding: 12px;
-            background: #e2e8f0;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            color: #64748b;
-            transition: all 0.2s;
+            flex: 1; padding: 12px 5px; background: #e2e8f0; border: none;
+            border-radius: 8px; font-weight: 600; cursor: pointer; color: #64748b;
+            font-size: 0.9rem; transition: all 0.2s;
         }
-        .tab-btn.active {
-            background: var(--primary);
-            color: white;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
-        /* Dashboards */
         .total-card {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            background: var(--primary); color: white; padding: 20px;
+            border-radius: 12px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
-        .total-card.savings-theme {
-            background: var(--success);
-        }
+        .total-card.savings-theme { background: var(--success); }
+        .total-card.cards-theme { background: var(--warning); }
         .total-card h2 { margin: 0; font-size: 1rem; opacity: 0.9; font-weight: 400; }
         .total-amount { font-size: 2.2rem; font-weight: 700; margin-top: 5px; }
         
         .card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
+            background: var(--card-bg); padding: 20px; border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid var(--border);
         }
         .form-group { margin-bottom: 15px; }
-        .form-row { display: flex; gap: 10px; }
+        .form-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .form-row .form-group { flex: 1; margin-bottom: 0; }
         label { display: block; margin-bottom: 5px; font-size: 0.85rem; font-weight: 600; }
         input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 1rem;
+            width: 100%; padding: 10px; border: 1px solid var(--border);
+            border-radius: 6px; box-sizing: border-box; font-size: 1rem;
         }
         button.submit-btn {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
+            width: 100%; background: var(--primary); color: white; border: none;
+            padding: 12px; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer;
         }
         .savings-theme button.submit-btn { background: var(--success); }
-        button:hover { opacity: 0.9; }
+        .cards-theme button.submit-btn { background: var(--warning); color: #000; }
         
         .list-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 8px; margin-bottom: 10px; }
         .section-title { font-weight: 700; font-size: 1.1rem; margin: 20px 0 10px 0; color: #475569;}
         .clear-btn { background: none; color: var(--danger); border: none; width: auto; padding: 0; font-size: 0.85rem; cursor: pointer; }
         .item-list { list-style: none; padding: 0; margin: 0; }
         .item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid var(--border);
         }
         .item-row:last-child { border-bottom: none; }
         .item-details .name { font-weight: 600; }
         .item-details .subtext { font-size: 0.8rem; color: #64748b; margin-top: 2px; }
         .item-val { font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 10px; }
+        .negative { color: var(--danger); }
+        .badge { display: inline-block; padding: 2px 6px; font-size: 0.75rem; font-weight: 600; border-radius: 4px; background: #e2e8f0; color: #475569; margin-left: 5px; }
         .del-btn { background: none; color: var(--danger); border: none; cursor: pointer; font-size: 1.1rem; padding: 0 5px; }
+        
+        .chart-container { max-width: 280px; margin: 0 auto 20px auto; position: relative; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Multi-Currency Wealth Tracker</h1>
+    <h1>Personal Multi-Currency Tracker</h1>
     
-    <!-- Navigation Menu -->
+    <!-- Navigation Tabs -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('expenses-tab')">Expenses</button>
-        <button class="tab-btn" onclick="switchTab('savings-tab')">Savings & Investments</button>
+        <button class="tab-btn active" id="btn-exp" onclick="switchTab('expenses-tab')">Expenses</button>
+        <button class="tab-btn" id="btn-sav" onclick="switchTab('savings-tab')">Savings</button>
+        <button class="tab-btn" id="btn-crd" onclick="switchTab('cards-tab')">Credit Cards</button>
     </div>
 
     <!-- ================= EXPENSES PAGE ================= -->
     <div id="expenses-tab" class="tab-content active">
         <div class="total-card">
-            <h2>Total Expenses</h2>
+            <h2>Total Expenses (<span id="currentMonthLabel">Selected Month</span>)</h2>
             <div class="total-amount" id="expenseTotal">HK$ 0.00</div>
         </div>
 
+        <!-- Monthly Selector Filter -->
+        <div class="card" style="padding: 12px 20px;">
+            <label>📅 View Statement Month</label>
+            <select id="monthFilter" onchange="updateUI()"></select>
+        </div>
+
+        <!-- Visual Analytics Pie Chart Container -->
+        <div class="card" id="chartCard" style="display:none;">
+            <h3 style="margin-top:0; text-align:center; font-size:1rem; color:#475569;">Monthly Breakdown Chart</h3>
+            <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Input Log Form -->
         <div class="card">
             <form id="expenseForm">
-                <div class="form-group">
-                    <label>Item Name</label>
-                    <input type="text" id="expName" placeholder="e.g., Dinner, Logistics" required>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 2;">
+                        <label>Item Description</label>
+                        <input type="text" id="expName" placeholder="e.g., MTR, Lunch, Slabs" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Category</label>
+                        <select id="expCategory">
+                            <option value="Food">🍔 Food</option>
+                            <option value="Transport">🚇 Transport</option>
+                            <option value="Shopping">🛍️ Shopping</option>
+                            <option value="Entertainment">🎬 Entertainment</option>
+                            <option value="Bills">📄 Bills</option>
+                            <option value="Others">🌀 Others</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-row">
-                    <div style="flex: 2;">
+                    <div class="form-group" style="flex: 2;">
                         <label>Amount</label>
                         <input type="number" id="expAmount" step="0.01" placeholder="0.00" required>
                     </div>
-                    <div style="flex: 1;">
+                    <div class="form-group" style="flex: 1;">
                         <label>Currency</label>
                         <select id="expCurrency" class="curr-select"></select>
                     </div>
                 </div>
+                
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="expPaymentMethod" onchange="toggleCreditCardSelect()">
+                        <option value="Cash">💵 Cash</option>
+                        <option value="Bank Transfer">🏦 Bank Transfer</option>
+                        <option value="Credit Card">💳 Credit Card</option>
+                    </select>
+                </div>
+
+                <!-- Hidden by default, triggers only on Credit Card choice -->
+                <div class="form-group" id="creditCardSelectGroup" style="display: none;">
+                    <label style="color: var(--primary);">Choose Credit Card Used</label>
+                    <select id="expChosenCard"></select>
+                </div>
+
                 <button type="submit" class="submit-btn">Add Expense</button>
             </form>
         </div>
 
         <div class="card">
             <div class="list-header">
-                <h3>Expense History</h3>
+                <h3>Expense Ledger Logs</h3>
                 <button class="clear-btn" onclick="clearData('expenses')">Clear All</button>
             </div>
             <ul class="item-list" id="expenseList"></ul>
@@ -174,66 +185,95 @@
     <!-- ================= SAVINGS PAGE ================= -->
     <div id="savings-tab" class="tab-content savings-theme">
         <div class="total-card savings-theme">
-            <h2>Net Savings Assets</h2>
+            <h2>Total Savings Assets (Live Rates)</h2>
             <div class="total-amount" id="savingsTotal">HK$ 0.00</div>
         </div>
 
-        <!-- Add Asset Form -->
         <div class="card">
             <form id="savingsForm">
                 <div class="form-group">
                     <label>Asset Type</label>
                     <select id="assetType" onchange="toggleAssetLabel()">
                         <option value="Bank">Bank Account</option>
-                        <option value="Investment">Investment / Broker App</option>
+                        <option value="Investment">Investment Portfolio / App</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label id="nameLabel">Bank Name</label>
-                    <input type="text" id="assetName" placeholder="e.g., HSBC, ZA Bank, Futu" required>
+                    <input type="text" id="assetName" placeholder="e.g., HSBC, ZA Bank" required>
                 </div>
                 <div class="form-row">
-                    <div style="flex: 2;">
-                        <label>Balance / Equity Amount</label>
+                    <div class="form-group" style="flex: 2;">
+                        <label>Balance Amount</label>
                         <input type="number" id="assetAmount" step="0.01" placeholder="0.00" required>
                     </div>
-                    <div style="flex: 1;">
+                    <div class="form-group" style="flex: 1;">
                         <label>Currency</label>
                         <select id="assetCurrency" class="curr-select"></select>
                     </div>
                 </div>
-                <button type="submit" class="submit-btn">Add Asset Asset</button>
+                <button type="submit" class="submit-btn">Add Asset</button>
             </form>
         </div>
 
-        <!-- Asset Display Lists -->
         <div class="card">
             <div class="list-header">
-                <h3>Asset Breakdown</h3>
+                <h3>Asset Balances</h3>
                 <button class="clear-btn" onclick="clearData('savings')">Clear All</button>
             </div>
-            
             <div class="section-title">🏦 Cash & Bank Accounts</div>
             <ul class="item-list" id="bankList"></ul>
-            
-            <div class="section-title">📈 Investment Platforms</div>
+            <div class="section-title">📈 Investments & Brokerage</div>
             <ul class="item-list" id="investList"></ul>
+        </div>
+    </div>
+
+    <!-- ================= CREDIT CARDS PAGE ================= -->
+    <div id="cards-tab" class="tab-content cards-theme">
+        <div class="total-card cards-theme">
+            <h2 style="color: #000;">Total Outstanding Credit Debt (Live Rates)</h2>
+            <div class="total-amount" id="cardsTotal" style="color: #000;">HK$ 0.00</div>
+        </div>
+
+        <div class="card">
+            <form id="cardForm">
+                <div class="form-group">
+                    <label>Card Label / Name</label>
+                    <input type="text" id="cardName" placeholder="e.g., Red Card, VS Card" required>
+                </div>
+                <div class="form-group">
+                    <label>Issuing Bank</label>
+                    <input type="text" id="cardBank" placeholder="e.g., HSBC, Citi" required>
+                </div>
+                <div class="form-group">
+                    <label>Card Billing Currency</label>
+                    <select id="cardCurrency" class="curr-select"></select>
+                </div>
+                <button type="submit" class="submit-btn">Link Credit Card</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="list-header">
+                <h3>Your Credit Cards</h3>
+                <button class="clear-btn" onclick="clearData('creditCards')">Clear All</button>
+            </div>
+            <ul class="item-list" id="creditCardList"></ul>
         </div>
     </div>
 </div>
 
 <script>
-    // Storage States
     let data = {
-        expenses: JSON.parse(localStorage.getItem('web_expenses')) || [],
-        savings: JSON.parse(localStorage.getItem('web_savings')) || []
+        expenses: JSON.parse(localStorage.getItem('cc_expenses_v3')) || [],
+        savings: JSON.parse(localStorage.getItem('cc_savings_v3')) || [],
+        creditCards: JSON.parse(localStorage.getItem('cc_cards_v3')) || []
     };
 
-    // Supported Currencies
-    const currencyOptions = ['HKD', 'USD', 'JPY', 'EUR', 'GBP', 'CNY'];
-    let rates = { HKD: 1, USD: 7.84, JPY: 0.049, EUR: 8.42, GBP: 9.95, CNY: 1.08 };
+    const currencyOptions = ['HKD', 'USD', 'JPY', 'EUR', 'GBP', 'CNY', 'TWD', 'KRW'];
+    let liveRates = { HKD: 1, USD: 7.84, JPY: 0.049, EUR: 8.42, GBP: 9.95, CNY: 1.08, TWD: 0.24, KRW: 0.0056 };
+    let categoryPieChart = null;
 
-    // Initialize currency dropdowns dynamically
     document.querySelectorAll('.curr-select').forEach(select => {
         currencyOptions.forEach(curr => {
             let opt = document.createElement('option');
@@ -242,23 +282,40 @@
         });
     });
 
-    // Page Navigation
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        
         document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+        
+        if(tabId === 'expenses-tab') document.getElementById('btn-exp').classList.add('active');
+        if(tabId === 'savings-tab') document.getElementById('btn-sav').classList.add('active');
+        if(tabId === 'cards-tab') document.getElementById('btn-crd').classList.add('active');
     }
 
-    // Dynamic Form UX text adjustment
     function toggleAssetLabel() {
         const type = document.getElementById('assetType').value;
         document.getElementById('nameLabel').innerText = type === 'Bank' ? 'Bank Name' : 'Investment Platform / App Name';
-        document.getElementById('assetName').placeholder = type === 'Bank' ? 'e.g., HSBC, Hang Seng' : 'e.g., Futu Bull, IBKR';
+        document.getElementById('assetName').placeholder = type === 'Bank' ? 'e.g., HSBC, ZA Bank' : 'e.g., Futu, IBKR';
     }
 
-    // Live Exchange Rate Engine
+    // Controls appearance of card selection dropdown, with custom validation rules
+    function toggleCreditCardSelect() {
+        const method = document.getElementById('expPaymentMethod').value;
+        const ccGroup = document.getElementById('creditCardSelectGroup');
+        
+        if (method === 'Credit Card') {
+            if (data.creditCards.length === 0) {
+                alert("You haven't added any credit cards yet! Please go to the 'Credit Cards' tab to add one first.");
+                document.getElementById('expPaymentMethod').value = 'Cash';
+                ccGroup.style.display = 'none';
+            } else {
+                ccGroup.style.display = 'block';
+            }
+        } else {
+            ccGroup.style.display = 'none';
+        }
+    }
+
     async function fetchRates() {
         try {
             const res = await fetch('https://open.er-api.com/v6/latest/HKD');
@@ -266,86 +323,240 @@
             if(apiData && apiData.rates) {
                 currencyOptions.forEach(curr => {
                     if (curr !== 'HKD' && apiData.rates[curr]) {
-                        rates[curr] = 1 / apiData.rates[curr];
+                        liveRates[curr] = 1 / apiData.rates[curr];
                     }
                 });
-                updateUI();
             }
         } catch (e) {
-            console.log("Using offline baseline exchange rules.", e);
+            console.log("Using offline configuration parameters.", e);
+        }
+        buildDropdownMonths();
+        updateUI();
+    }
+
+    function buildDropdownMonths() {
+        const filterEl = document.getElementById('monthFilter');
+        const savedSelection = filterEl.value;
+        const currentPeriod = new Date().toISOString().substring(0, 7); 
+        let months = new Set([currentPeriod]);
+        
+        data.expenses.forEach(exp => {
+            if (exp.periodMonth) months.add(exp.periodMonth);
+        });
+
+        let sortedMonths = Array.from(months).sort().reverse();
+        filterEl.innerHTML = '';
+        sortedMonths.forEach(m => {
+            let opt = document.createElement('option');
+            opt.value = m;
+            const dateObj = new Date(m + "-02");
+            opt.innerText = dateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            filterEl.appendChild(opt);
+        });
+
+        if (savedSelection && sortedMonths.includes(savedSelection)) {
+            filterEl.value = savedSelection;
+        } else {
+            filterEl.value = currentPeriod;
         }
     }
 
-    // Render data engines
     function updateUI() {
-        // Backup to Local Storage
-        localStorage.setItem('web_expenses', JSON.stringify(data.expenses));
-        localStorage.setItem('web_savings', JSON.stringify(data.savings));
+        localStorage.setItem('cc_expenses_v3', JSON.stringify(data.expenses));
+        localStorage.setItem('cc_savings_v3', JSON.stringify(data.savings));
+        localStorage.setItem('cc_cards_v3', JSON.stringify(data.creditCards));
 
-        // --- RENDER EXPENSES ---
+        const selectedMonth = document.getElementById('monthFilter').value || new Date().toISOString().substring(0, 7);
+        
+        const labelEl = document.getElementById('currentMonthLabel');
+        if(labelEl) {
+            const parsedDate = new Date(selectedMonth + "-02");
+            labelEl.innerText = parsedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        }
+
+        // Populate card choices dropdown options
+        const ccSelect = document.getElementById('expChosenCard');
+        ccSelect.innerHTML = '';
+        data.creditCards.forEach((card, index) => {
+            let opt = document.createElement('option');
+            opt.value = index; 
+            opt.innerText = `${card.bank} - ${card.name} (${card.currency})`;
+            ccSelect.appendChild(opt);
+        });
+
+        let cardBalances = data.creditCards.map(() => 0);
+        let categoryTotals = { Food: 0, Transport: 0, Shopping: 0, Entertainment: 0, Bills: 0, Others: 0 };
+
+        // --- 1. EVALUATE & PROCESS ALL HISTORICAL EXPENSES ---
         const expListEl = document.getElementById('expenseList');
         expListEl.innerHTML = '';
-        let totalExpHKD = 0;
+        let totalFilteredMonthExpHKD = 0;
 
         data.expenses.forEach((item, idx) => {
-            const hkdVal = item.amount * (rates[item.currency] || 1);
-            totalExpHKD += hkdVal;
-            expListEl.appendChild(createRowHTML(item.name, item.amount, item.currency, hkdVal, 'expenses', idx));
-        });
-        document.getElementById('expenseTotal').innerText = `HK$ ${totalExpHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            // Check card tracking index dependencies
+            if (item.paymentMethod === 'Credit Card' && item.cardIndex !== undefined && cardBalances[item.cardIndex] !== undefined) {
+                const targetCard = data.creditCards[item.cardIndex];
+                const itemCostInHKD = item.amount * item.frozenRate;
+                const costInCardCurrency = itemCostInHKD / (liveRates[targetCard.currency] || 1);
+                cardBalances[item.cardIndex] += costInCardCurrency;
+            }
 
-        // --- RENDER SAVINGS ---
+            if (item.periodMonth === selectedMonth) {
+                const hkdEquivalent = item.amount * item.frozenRate;
+                totalFilteredMonthExpHKD += hkdEquivalent;
+                
+                if(categoryTotals[item.category] !== undefined) {
+                    categoryTotals[item.category] += hkdEquivalent;
+                }
+
+                const li = document.createElement('li');
+                li.className = 'item-row';
+                
+                let pMethodLabel = item.paymentMethod;
+                if (item.paymentMethod === 'Credit Card') {
+                    pMethodLabel = `CC: ${data.creditCards[item.cardIndex]?.name || 'Linked Card'}`;
+                }
+
+                li.innerHTML = `
+                    <div class="item-details">
+                        <div class="name">${item.name} <span class="badge">${item.category}</span></div>
+                        <div class="subtext">${item.amount.toLocaleString(undefined,{minimumFractionDigits:2})} ${item.currency} &bull; via ${pMethodLabel}</div>
+                    </div>
+                    <div class="item-val">
+                        HK$ ${hkdEquivalent.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}
+                        <button class="del-btn" onclick="deleteItem('expenses', ${idx})">&times;</button>
+                    </div>
+                `;
+                expListEl.appendChild(li);
+            }
+        });
+        document.getElementById('expenseTotal').innerText = `HK$ ${totalFilteredMonthExpHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+        renderPieChart(categoryTotals);
+
+        // --- 2. RENDER ALL ACTIVE SYSTEM CREDIT CARDS (LIVE RATES) ---
+        const ccListEl = document.getElementById('creditCardList');
+        ccListEl.innerHTML = '';
+        let totalCardDebtHKD = 0;
+
+        data.creditCards.forEach((card, idx) => {
+            const outstandingAmt = cardBalances[idx];
+            const debtInHKD = outstandingAmt * (liveRates[card.currency] || 1);
+            totalCardDebtHKD += debtInHKD;
+
+            const li = document.createElement('li');
+            li.className = 'item-row';
+            li.innerHTML = `
+                <div class="item-details">
+                    <div class="name">${card.name}</div>
+                    <div class="subtext">${card.bank} &bull; Billing Currency: ${card.currency}</div>
+                </div>
+                <div class="item-val negative">
+                    -${outstandingAmt.toLocaleString(undefined, {minimumFractionDigits: 2})} ${card.currency}
+                    <div class="subtext" style="font-weight:normal;">(HK$ ${debtInHKD.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})})</div>
+                    <button class="del-btn" onclick="deleteItem('creditCards', ${idx})">&times;</button>
+                </div>
+            `;
+            ccListEl.appendChild(li);
+        });
+        if(data.creditCards.length === 0) ccListEl.innerHTML = '<li class="item-row subtext">No linked credit cards.</li>';
+        document.getElementById('cardsTotal').innerText = `HK$ ${totalCardDebtHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+        // --- 3. RENDER ALL SAVINGS WALLETS (LIVE RATES DAILY) ---
         const bankListEl = document.getElementById('bankList');
         const investListEl = document.getElementById('investList');
-        bankListEl.innerHTML = '';
-        investListEl.innerHTML = '';
+        bankListEl.innerHTML = ''; investListEl.innerHTML = '';
         let totalSavingsHKD = 0;
 
         data.savings.forEach((item, idx) => {
-            const hkdVal = item.amount * (rates[item.currency] || 1);
+            const hkdVal = item.amount * (liveRates[item.currency] || 1);
             totalSavingsHKD += hkdVal;
             
-            const row = createRowHTML(item.name, item.amount, item.currency, hkdVal, 'savings', idx);
-            if(item.type === 'Bank') {
-                bankListEl.appendChild(row);
-            } else {
-                investListEl.appendChild(row);
-            }
+            const li = document.createElement('li');
+            li.className = 'item-row';
+            li.innerHTML = `
+                <div class="item-details">
+                    <div class="name">${item.name}</div>
+                    <div class="subtext">${item.amount.toLocaleString(undefined, {minimumFractionDigits: 2})} ${item.currency}</div>
+                </div>
+                <div class="item-val">
+                    HK$ ${hkdVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    <button class="del-btn" onclick="deleteItem('savings', ${idx})">&times;</button>
+                </div>
+            `;
+            if(item.type === 'Bank') bankListEl.appendChild(li);
+            else investListEl.appendChild(li);
         });
-        
-        // Show placeholders if empty
-        if(bankListEl.children.length === 0) bankListEl.innerHTML = '<li class="item-row subtext">No bank accounts listed.</li>';
-        if(investListEl.children.length === 0) investListEl.innerHTML = '<li class="item-row subtext">No investments listed.</li>';
-
+        if(bankListEl.children.length === 0) bankListEl.innerHTML = '<li class="item-row subtext">No accounts listed.</li>';
+        if(investListEl.children.length === 0) investListEl.innerHTML = '<li class="item-row subtext">No portfolios listed.</li>';
         document.getElementById('savingsTotal').innerText = `HK$ ${totalSavingsHKD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     }
 
-    function createRowHTML(name, amount, curr, hkd, category, index) {
-        const li = document.createElement('li');
-        li.className = 'item-row';
-        li.innerHTML = `
-            <div class="item-details">
-                <div class="name">${name}</div>
-                <div class="subtext">${amount.toLocaleString(undefined, {minimumFractionDigits: 2})} ${curr}</div>
-            </div>
-            <div class="item-val">
-                HK$ ${hkd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                <button class="del-btn" onclick="deleteItem('${category}', ${index})">&times;</button>
-            </div>
-        `;
-        return li;
+    function renderPieChart(totalsData) {
+        const chartCard = document.getElementById('chartCard');
+        const labels = Object.keys(totalsData);
+        const values = Object.values(totalsData);
+        
+        const absoluteSum = values.reduce((a, b) => a + b, 0);
+        if (absoluteSum === 0) {
+            chartCard.style.display = 'none';
+            return;
+        }
+        chartCard.style.display = 'block';
+
+        const ctx = document.getElementById('categoryChart').getContext('2d');
+        
+        if (categoryPieChart) {
+            categoryPieChart.data.datasets[0].data = values;
+            categoryPieChart.update();
+        } else {
+            categoryPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#64748b'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                    }
+                }
+            });
+        }
     }
 
-    // Forms Submission handling
     document.getElementById('expenseForm').addEventListener('submit', (e) => {
         e.preventDefault();
+        
+        const selectedCurrency = document.getElementById('expCurrency').value;
+        const currentExecutionRate = liveRates[selectedCurrency] || 1;
+        const targetPeriodMonth = new Date().toISOString().substring(0, 7); 
+        const pMethod = document.getElementById('expPaymentMethod').value;
+        const chosenCardIndex = pMethod === 'Credit Card' ? document.getElementById('expChosenCard').value : null;
+
         data.expenses.push({
             name: document.getElementById('expName').value,
+            category: document.getElementById('expCategory').value,
             amount: parseFloat(document.getElementById('expAmount').value),
-            currency: document.getElementById('expCurrency').value
+            currency: selectedCurrency,
+            paymentMethod: pMethod,
+            cardIndex: chosenCardIndex,
+            frozenRate: currentExecutionRate,      
+            periodMonth: targetPeriodMonth         
         });
+
+        buildDropdownMonths();
+        document.getElementById('monthFilter').value = targetPeriodMonth;
+        
         updateUI();
         document.getElementById('expenseForm').reset();
+        document.getElementById('creditCardSelectGroup').style.display = 'none';
     });
 
     document.getElementById('savingsForm').addEventListener('submit', (e) => {
@@ -358,23 +569,34 @@
         });
         updateUI();
         document.getElementById('savingsForm').reset();
-        toggleAssetLabel(); // reset placeholder layout text
+        toggleAssetLabel();
     });
 
-    // Removals Engine
+    document.getElementById('cardForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        data.creditCards.push({
+            name: document.getElementById('cardName').value,
+            bank: document.getElementById('cardBank').value,
+            currency: document.getElementById('cardCurrency').value
+        });
+        updateUI();
+        document.getElementById('cardForm').reset();
+    });
+
     function deleteItem(category, index) {
         data[category].splice(index, 1);
+        if(category === 'expenses') buildDropdownMonths();
         updateUI();
     }
 
     function clearData(category) {
-        if(confirm(`Are you sure you want to clear your entire ${category} registry?`)) {
+        if(confirm(`Permanently clear your active dataset history for ${category}?`)) {
             data[category] = [];
+            if(category === 'expenses') buildDropdownMonths();
             updateUI();
         }
     }
 
-    // Run Engine Initializer
     fetchRates();
 </script>
 </body>
