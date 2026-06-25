@@ -185,6 +185,7 @@
                     <label>Payment Method</label>
                     <select id="expPaymentMethod" onchange="handlePaymentMethodChange()">
                         <option value="Cash">💵 Cash</option>
+                        <option value="Octopus Card">💳 Octopus Card</option>
                         <option value="Bank Transfer">🏦 Bank Transfer</option>
                         <option value="Credit Card">💳 Credit Card</option>
                     </select>
@@ -524,7 +525,16 @@
             if (item.periodMonth === selectedMonth) {
                 totalFilteredMonthExpHKD += itemCostInHKD;
                 if(categoryTotals[item.category] !== undefined) categoryTotals[item.category] += itemCostInHKD;
-                let pLabel = item.paymentMethod === 'Credit Card' ? `💳 ${data.creditCards[item.cardIndex]?.name || 'CC'}` : (item.paymentMethod === 'Bank Transfer' ? `🏦 ${data.savings[item.bankAssetIndex]?.name || 'Bank'}` : '💵 Cash');
+                
+                // Handle different payment method badge strings
+                let pLabel = '💵 Cash';
+                if (item.paymentMethod === 'Credit Card') {
+                    pLabel = `💳 ${data.creditCards[item.cardIndex]?.name || 'CC'}`;
+                } else if (item.paymentMethod === 'Bank Transfer') {
+                    pLabel = `🏦 ${data.savings[item.bankAssetIndex]?.name || 'Bank'}`;
+                } else if (item.paymentMethod === 'Octopus Card') {
+                    pLabel = `💳 Octopus`;
+                }
 
                 const li = document.createElement('li'); li.className = 'item-row';
                 li.innerHTML = `
