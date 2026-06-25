@@ -129,3 +129,651 @@
         }
         .pill-neutral { background: #f1f5f9; color: var(--text-main); }
         .pill-green { background: var(--pill-green-bg); color: var(--pill-green-text); }
+        .pill-red { background: var(--pill-red-bg); color: var(--pill-red-text); }
+        .pill-amber { background: var(--pill-amber-bg); color: var(--pill-amber-text); }
+        
+        .item-details .name { font-weight: 600; font-size: 0.95rem; color: var(--text-main); }
+        .item-details .subtext { font-size: 0.78rem; color: var(--text-sub); margin-top: 2px; font-weight: 500; }
+        
+        .del-btn { background: none; color: #cbd5e1; border: none; cursor: pointer; font-size: 1.3rem; padding-left: 8px; font-weight: 300; }
+        .del-btn:hover { color: #ef4444; }
+        
+        .market-selector { display: flex; gap: 6px; background: #f1f5f9; padding: 4px; border-radius: 12px; margin-bottom: 14px; }
+        .market-option {
+            flex: 1; text-align: center; padding: 10px; font-size: 0.85rem; font-weight: 600;
+            border-radius: 9px; cursor: pointer; color: #64748b; transition: all 0.2s;
+        }
+        .market-option.active { background: white; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+
+        .api-status { font-size: 0.75rem; color: var(--text-sub); text-align: center; margin-top: -10px; margin-bottom: 14px; font-weight: 500;}
+        .refresh-pill { color: var(--primary-purple); font-weight: 700; cursor: pointer; margin-left: 4px; text-decoration: underline;}
+        
+        /* Premium Bottom Navigation Engine */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 72px;
+            background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(0,0,0,0.04); display: flex; justify-content: space-around;
+            align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 9999;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.02);
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            background: none; border: none; cursor: pointer; color: #94a3b8; width: 60px;
+        }
+        .nav-icon { font-size: 1.4rem; line-height: 1; transition: transform 0.1s; }
+        .nav-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.2px; }
+        .nav-item.active { color: var(--primary-purple); }
+        .nav-item:active .nav-icon { transform: scale(0.9); }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.25s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .chart-container { max-width: 200px; margin: 5px auto; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="top-date-header">
+        <span id="headerPeriodDisplay">Analytics Engine</span>
+    </div>
+    
+    <div id="expenses-tab" class="tab-content active">
+        <div class="total-card">
+            <h2>Total Disbursed Expenses</h2>
+            <div class="total-amount" id="expenseTotal">HK$ 0.00</div>
+        </div>
+        <div class="card" style="padding: 10px 16px; display: flex; align-items: center; justify-content: space-between;">
+            <label style="margin-bottom:0;">Statement Period</label>
+            <select id="monthFilter" onchange="updateUI()" style="width: auto; padding: 6px 12px; border-radius: 8px;"></select>
+        </div>
+        <div class="card" id="chartCard" style="display:none;">
+            <div class="chart-container"><canvas id="categoryChart"></canvas></div>
+        </div>
+        <div class="card">
+            <form id="expenseForm">
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1.8;">
+                        <label>Item Description</label>
+                        <input type="text" id="expName" placeholder="MTR, Lunch, TCG Slabs" required>
+                    </div>
+                    <div class="form-group" style="flex: 1.2;">
+                        <label>Category</label>
+                        <select id="expCategory">
+                            <option value="Food">🍔 Food</option>
+                            <option value="Transport">🚇 Transport</option>
+                            <option value="Shopping">🛍️ Shopping</option>
+                            <option value="Entertainment">🎬 Entertainment</option>
+                            <option value="Bills">📄 Bills</option>
+                            <option value="Others">🌀 Others</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1.8;">
+                        <label>Amount</label>
+                        <input type="number" id="expAmount" step="0.01" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group" style="flex: 1.2;">
+                        <label>Currency</label>
+                        <select id="expCurrency" class="curr-select"></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Payment Mode</label>
+                    <select id="expPaymentMethod" onchange="handlePaymentMethodChange()">
+                        <option value="Cash">💵 Cash</option>
+                        <option value="Octopus Card">💳 Octopus Card</option>
+                        <option value="Bank Transfer">🏦 Bank Transfer</option>
+                        <option value="Credit Card">💳 Credit Card</option>
+                    </select>
+                </div>
+                <div class="form-group" id="bankSelectGroup" style="display: none;">
+                    <label style="color: var(--pill-green-text);">Source Bank Account</label>
+                    <select id="expChosenBank"></select>
+                </div>
+                <div class="form-group" id="creditCardSelectGroup" style="display: none;">
+                    <label style="color: var(--primary-purple);">Linked Credit Card</label>
+                    <select id="expChosenCard"></select>
+                </div>
+                <button type="submit" class="submit-btn">Log Expense</button>
+            </form>
+        </div>
+        <div class="card">
+            <div class="list-header">
+                <h3>Statement Logs</h3>
+                <button class="clear-btn" onclick="clearData('expenses')">Clear All</button>
+            </div>
+            <ul class="item-list" id="expenseList"></ul>
+        </div>
+    </div>
+
+    <div id="savings-tab" class="tab-content">
+        <div class="total-card">
+            <h2>Total Net Savings Assets</h2>
+            <div class="total-amount" id="savingsTotal">HK$ 0.00</div>
+        </div>
+        <div class="card">
+            <form id="savingsForm">
+                <div class="form-group">
+                    <label>Asset Track Base</label>
+                    <select id="assetType" onchange="toggleAssetLabel()">
+                        <option value="Bank">Bank / Liquid Capital</option>
+                        <option value="Investment">Fixed Brokerage Platforms</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label id="nameLabel">Bank Name</label>
+                    <input type="text" id="assetName" placeholder="e.g., HSBC, ZA Bank" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1.8;">
+                        <label>Opening Vault Balance</label>
+                        <input type="number" id="assetAmount" step="0.01" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group" style="flex: 1.2;">
+                        <label>Currency</label>
+                        <select id="assetCurrency" class="curr-select"></select>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn" style="background: #10b981;">Add Vault Asset</button>
+            </form>
+        </div>
+        <div class="card">
+            <div class="list-header">
+                <h3>Asset Ledger</h3>
+                <button class="clear-btn" onclick="clearData('savings')">Clear All</button>
+            </div>
+            <div class="section-title">🏦 Cash & Liquid Banks</div>
+            <ul class="item-list" id="bankList"></ul>
+            <div class="section-title">📈 Automated Equities Sync</div>
+            <ul class="item-list" id="autoStockValuationList"></ul>
+            <div class="section-title">💼 Brokerage / Other Capital</div>
+            <ul class="item-list" id="investList"></ul>
+        </div>
+    </div>
+
+    <div id="stocks-tab" class="tab-content">
+        <div class="total-card">
+            <h2>Live Portfolio Capitalization</h2>
+            <div class="total-amount" id="stocksTotal">HK$ 0.00</div>
+        </div>
+        <div class="api-status" id="stockApiStatus">
+            Engine Idle <span class="refresh-pill" onclick="fetchAllStockPrices()">⚡ Sync Live</span>
+        </div>
+        <div class="card" style="background: #fbfbfe;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label>Finnhub Live Matrix Key</label>
+                <input type="text" id="finnhubKey" placeholder="Paste your free API token key" onchange="saveApiKey()">
+            </div>
+        </div>
+        <div class="card">
+            <form id="stockForm">
+                <label>Exchange Jurisdiction</label>
+                <div class="market-selector">
+                    <div class="market-option active" id="market-hk" onclick="setMarket('HK')">Hong Kong Exchange</div>
+                    <div class="market-option" id="market-us" onclick="setMarket('US')">United States (NYSE/NASDAQ)</div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1.4;">
+                        <label>Ticker Symbol</label>
+                        <input type="text" id="stockTicker" placeholder="e.g., 0700.HK" required>
+                    </div>
+                    <div class="form-group" style="flex: 1.6;">
+                        <label>Volume (Shares Held)</label>
+                        <input type="number" id="stockShares" step="0.0001" placeholder="0" required>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn" style="background: #4f46e5;">Link Asset Ticker</button>
+            </form>
+        </div>
+        <div class="card">
+            <div class="list-header">
+                <h3>Tracked Equities Matrix</h3>
+                <button class="clear-btn" onclick="clearData('stocks')">Clear All</button>
+            </div>
+            <ul class="item-list" id="stockList"></ul>
+        </div>
+    </div>
+
+    <div id="cards-tab" class="tab-content">
+        <div class="total-card">
+            <h2>Aggregated Statement Debt</h2>
+            <div class="total-amount" id="cardsTotal" style="color: #ef4444;">HK$ 0.00</div>
+        </div>
+        <div class="card">
+            <form id="cardForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Card Alias</label>
+                        <input type="text" id="cardName" placeholder="e.g., Red, EveryMile" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Issuer Bank</label>
+                        <input type="text" id="cardBank" placeholder="e.g., HSBC" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Primary Billing Currency</label>
+                    <select id="cardCurrency" class="curr-select"></select>
+                </div>
+                <button type="submit" class="submit-btn" style="background: #f59e0b;">Bind Credit Line</button>
+            </form>
+        </div>
+        <div class="card">
+            <div class="list-header">
+                <h3>Active Credit Accounts</h3>
+                <button class="clear-btn" onclick="clearData('creditCards')">Clear All</button>
+            </div>
+            <ul class="item-list" id="creditCardList"></ul>
+        </div>
+    </div>
+
+</div>
+
+<div class="bottom-nav">
+    <button class="nav-item active" id="nav-expenses-tab" onclick="switchTab('expenses-tab')">
+        <div class="nav-icon">📊</div>
+        <div class="nav-label">Expenses</div>
+    </button>
+    <button class="nav-item" id="nav-savings-tab" onclick="switchTab('savings-tab')">
+        <div class="nav-icon">🏦</div>
+        <div class="nav-label">Savings</div>
+    </button>
+    <button class="nav-item" id="nav-stocks-tab" onclick="switchTab('stocks-tab')">
+        <div class="nav-icon">📈</div>
+        <div class="nav-label">Stocks</div>
+    </button>
+    <button class="nav-item" id="nav-cards-tab" onclick="switchTab('cards-tab')">
+        <div class="nav-icon">💳</div>
+        <div class="nav-label">Cards</div>
+    </button>
+</div>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
+    }
+
+    let data = {
+        expenses: JSON.parse(localStorage.getItem('w_expenses_v5')) || [],
+        savings: JSON.parse(localStorage.getItem('w_savings_v5')) || [],
+        stocks: JSON.parse(localStorage.getItem('w_stocks_v5')) || [],
+        creditCards: JSON.parse(localStorage.getItem('w_cards_v5')) || []
+    };
+
+    let activeStockMarket = 'HK';
+    const currencyOptions = ['HKD', 'USD', 'JPY', 'EUR', 'GBP', 'CNY', 'TWD', 'KRW'];
+    let liveRates = { HKD: 1, USD: 7.84, JPY: 0.049, EUR: 8.42, GBP: 9.95, CNY: 1.08, TWD: 0.24, KRW: 0.0056 };
+    let categoryPieChart = null;
+
+    // Category mapping array to grab custom UI icons cleanly
+    const categoryIcons = {
+        Food: "🍔",
+        Transport: "🚇",
+        Shopping: "🛍️",
+        Entertainment: "🎬",
+        Bills: "📄",
+        Others: "🌀"
+    };
+
+    document.getElementById('finnhubKey').value = localStorage.getItem('w_finnhub_key') || '';
+
+    function saveApiKey() {
+        const val = document.getElementById('finnhubKey').value.trim();
+        localStorage.setItem('w_finnhub_key', val);
+        fetchAllStockPrices();
+    }
+
+    document.querySelectorAll('.curr-select').forEach(select => {
+        currencyOptions.forEach(curr => {
+            let opt = document.createElement('option');
+            opt.value = curr; opt.innerText = curr;
+            select.appendChild(opt);
+        });
+    });
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        document.getElementById('nav-' + tabId).classList.add('active');
+    }
+
+    function setMarket(market) {
+        activeStockMarket = market;
+        document.getElementById('market-hk').classList.remove('active');
+        document.getElementById('market-us').classList.remove('active');
+        
+        const tickerInput = document.getElementById('stockTicker');
+        if(market === 'HK') {
+            document.getElementById('market-hk').classList.add('active');
+            tickerInput.placeholder = "e.g., 0700.HK";
+        } else {
+            document.getElementById('market-us').classList.add('active');
+            tickerInput.placeholder = "e.g., AAPL, TSLA";
+        }
+    }
+
+    function toggleAssetLabel() {
+        const type = document.getElementById('assetType').value;
+        document.getElementById('nameLabel').innerText = type === 'Bank' ? 'Bank Name' : 'Investment Platform Name';
+    }
+
+    function handlePaymentMethodChange() {
+        const method = document.getElementById('expPaymentMethod').value;
+        const bankGroup = document.getElementById('bankSelectGroup');
+        const ccGroup = document.getElementById('creditCardSelectGroup');
+        bankGroup.style.display = 'none'; ccGroup.style.display = 'none';
+
+        if (method === 'Bank Transfer' && data.savings.filter(s => s.type === 'Bank').length > 0) bankGroup.style.display = 'block';
+        if (method === 'Credit Card' && data.creditCards.length > 0) ccGroup.style.display = 'block';
+    }
+
+    async function fetchRates() {
+        try {
+            const res = await fetch('https://open.er-api.com/v6/latest/HKD');
+            const apiData = await res.json();
+            if(apiData && apiData.rates) {
+                currencyOptions.forEach(curr => { if (curr !== 'HKD' && apiData.rates[curr]) liveRates[curr] = 1 / apiData.rates[curr]; });
+            }
+        } catch (e) { console.log("Offline rates fallback running."); }
+        buildDropdownMonths();
+        await fetchAllStockPrices();
+    }
+
+    async function fetchSingleStock(symbol, apiKey) {
+        const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("API Limit or Blocked");
+        const json = await res.json();
+        if (json.c && json.c !== 0) return json.c;
+        return null;
+    }
+
+    async function fetchAllStockPrices() {
+        const apiKey = localStorage.getItem('w_finnhub_key');
+        if(!apiKey) {
+            document.getElementById('stockApiStatus').innerHTML = "⚠️ Finnhub API tracking key missing.";
+            updateUI();
+            return;
+        }
+        if(data.stocks.length === 0) {
+            document.getElementById('stockApiStatus').innerText = "Holdings tracking dashboard empty.";
+            updateUI();
+            return;
+        }
+
+        document.getElementById('stockApiStatus').innerText = "🔄 Live synchronization active...";
+
+        try {
+            for(let stock of data.stocks) {
+                let symbol = stock.ticker.toUpperCase().trim();
+                if (stock.market === 'HK' && !symbol.includes('.')) {
+                    symbol = symbol.padStart(4, '0') + ".HK";
+                }
+                const livePrice = await fetchSingleStock(symbol, apiKey);
+                if (livePrice) stock.price = livePrice;
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            document.getElementById('stockApiStatus').innerHTML = `✅ Linked at ${new Date().toLocaleTimeString()} <span class="refresh-pill" onclick="fetchAllStockPrices()">Sync</span>`;
+        } catch (err) {
+            document.getElementById('stockApiStatus').innerHTML = `⚠️ Sync Paused (Using Cache) <span class="refresh-pill" onclick="fetchAllStockPrices()">Retry</span>`;
+        }
+        updateUI();
+    }
+
+    function buildDropdownMonths() {
+        const filterEl = document.getElementById('monthFilter');
+        const savedSelection = filterEl.value;
+        const currentPeriod = new Date().toISOString().substring(0, 7); 
+        let months = new Set([currentPeriod]);
+        
+        data.expenses.forEach(exp => { if (exp.periodMonth) months.add(exp.periodMonth); });
+        let sortedMonths = Array.from(months).sort().reverse();
+        filterEl.innerHTML = '';
+        sortedMonths.forEach(m => {
+            let opt = document.createElement('option'); opt.value = m;
+            opt.innerText = new Date(m + "-02").toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            filterEl.appendChild(opt);
+        });
+        filterEl.value = (savedSelection && sortedMonths.includes(savedSelection)) ? savedSelection : currentPeriod;
+    }
+
+    function updateUI() {
+        localStorage.setItem('w_expenses_v5', JSON.stringify(data.expenses));
+        localStorage.setItem('w_savings_v5', JSON.stringify(data.savings));
+        localStorage.setItem('w_stocks_v5', JSON.stringify(data.stocks));
+        localStorage.setItem('w_cards_v5', JSON.stringify(data.creditCards));
+
+        const selectedMonth = document.getElementById('monthFilter').value || new Date().toISOString().substring(0, 7);
+        document.getElementById('headerPeriodDisplay').innerText = new Date(selectedMonth + "-02").toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+        const bankSelect = document.getElementById('expChosenBank'); bankSelect.innerHTML = '';
+        data.savings.forEach((asset, idx) => {
+            if(asset.type === 'Bank') {
+                let opt = document.createElement('option'); opt.value = idx; opt.innerText = `${asset.name} (${asset.currency})`; bankSelect.appendChild(opt);
+            }
+        });
+
+        const ccSelect = document.getElementById('expChosenCard'); ccSelect.innerHTML = '';
+        data.creditCards.forEach((card, idx) => {
+            let opt = document.createElement('option'); opt.value = idx; opt.innerText = `${card.bank} - ${card.name} (${card.currency})`; ccSelect.appendChild(opt);
+        });
+
+        let cardDebtAccruals = data.creditCards.map(() => 0);
+        let bankDeductionsMap = data.savings.map(() => 0);
+        let categoryTotals = { Food: 0, Transport: 0, Shopping: 0, Entertainment: 0, Bills: 0, Others: 0 };
+
+        // Process logs
+        const expListEl = document.getElementById('expenseList'); expListEl.innerHTML = '';
+        let totalFilteredMonthExpHKD = 0;
+        
+        data.expenses.forEach((item, idx) => {
+            const itemCostInHKD = item.amount * item.frozenRate;
+            if (item.paymentMethod === 'Credit Card' && cardDebtAccruals[item.cardIndex] !== undefined) cardDebtAccruals[item.cardIndex] += itemCostInHKD / (liveRates[data.creditCards[item.cardIndex].currency] || 1);
+            if (item.paymentMethod === 'Bank Transfer' && bankDeductionsMap[item.bankAssetIndex] !== undefined) bankDeductionsMap[item.bankAssetIndex] += itemCostInHKD / (liveRates[data.savings[item.bankAssetIndex].currency] || 1);
+
+            if (item.periodMonth === selectedMonth) {
+                totalFilteredMonthExpHKD += itemCostInHKD;
+                if(categoryTotals[item.category] !== undefined) categoryTotals[item.category] += itemCostInHKD;
+                
+                let pLabel = '💵 Cash';
+                if (item.paymentMethod === 'Credit Card') pLabel = `💳 ${data.creditCards[item.cardIndex]?.name || 'Card'}`;
+                else if (item.paymentMethod === 'Bank Transfer') pLabel = `🏦 ${data.savings[item.bankAssetIndex]?.name || 'Bank'}`;
+                else if (item.paymentMethod === 'Octopus Card') pLabel = `💳 Octopus`;
+
+                const fallbackIcon = categoryIcons[item.category] || "🌀";
+
+                const li = document.createElement('li'); li.className = 'item-row';
+                li.innerHTML = `
+                    <div class="item-left-block">
+                        <div class="icon-circle">${fallbackIcon}</div>
+                        <div class="item-details">
+                            <div class="name">${item.name}</div>
+                            <div class="subtext">${pLabel} &bull; ${item.amount.toLocaleString()} ${item.currency}</div>
+                        </div>
+                    </div>
+                    <div class="item-val-wrapper">
+                        <span class="val-pill pill-neutral">HK$ ${itemCostInHKD.toLocaleString(undefined,{minimumFractionDigits:2})}</span>
+                        <button class="del-btn" onclick="deleteItem('expenses', ${idx})">&times;</button>
+                    </div>
+                `;
+                expListEl.appendChild(li);
+            }
+        });
+        document.getElementById('expenseTotal').innerText = `HK$ ${totalFilteredMonthExpHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+        renderPieChart(categoryTotals);
+
+        // Process stocks
+        const stockListEl = document.getElementById('stockList'); stockListEl.innerHTML = '';
+        let totalStocksHKD = 0, totalHksHKD = 0, totalUssHKD = 0;
+
+        data.stocks.forEach((stock, idx) => {
+            const stockValueInNativeCurrency = stock.shares * stock.price;
+            const stockValueInHKD = stock.market === 'US' ? stockValueInNativeCurrency * liveRates['USD'] : stockValueInNativeCurrency;
+            
+            totalStocksHKD += stockValueInHKD;
+            if(stock.market === 'HK') totalHksHKD += stockValueInHKD; else totalUssHKD += stockValueInHKD;
+
+            const sym = stock.market === 'US' ? 'USD' : 'HKD';
+            const li = document.createElement('li'); li.className = 'item-row';
+            li.innerHTML = `
+                <div class="item-left-block">
+                    <div class="icon-circle" style="background:#f5f3ff; color:#7c3aed;">📈</div>
+                    <div class="item-details">
+                        <div class="name">${stock.ticker.toUpperCase()}</div>
+                        <div class="subtext">${stock.shares.toLocaleString()} units @ ${stock.price.toLocaleString()} ${sym}</div>
+                    </div>
+                </div>
+                <div class="item-val-wrapper">
+                    <span class="val-pill pill-amber" style="min-width:110px;">HK$ ${stockValueInHKD.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+                    <button class="del-btn" onclick="deleteItem('stocks', ${idx})">&times;</button>
+                </div>
+            `;
+            stockListEl.appendChild(li);
+        });
+        if(data.stocks.length === 0) stockListEl.innerHTML = '<li class="item-row subtext">No tracked tickers.</li>';
+        document.getElementById('stocksTotal').innerText = `HK$ ${totalStocksHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+
+        // Process Savings
+        const bankListEl = document.getElementById('bankList');
+        const investListEl = document.getElementById('investList');
+        const autoStockValuationListEl = document.getElementById('autoStockValuationList');
+        bankListEl.innerHTML = ''; investListEl.innerHTML = ''; autoStockValuationListEl.innerHTML = '';
+        
+        let totalSavingsHKD = totalStocksHKD;
+
+        if(totalStocksHKD > 0) {
+            const stockLi = document.createElement('li'); stockLi.className = 'item-row';
+            stockLi.innerHTML = `
+                <div class="item-left-block">
+                    <div class="icon-circle" style="background:#f0fdf4;">📊</div>
+                    <div class="item-details">
+                        <div class="name">Live Portfolio Valuation</div>
+                        <div class="subtext">Synced Equities Engine</div>
+                    </div>
+                </div>
+                <span class="val-pill pill-green" style="margin-right:26px;">HK$ ${totalStocksHKD.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+            `;
+            autoStockValuationListEl.appendChild(stockLi);
+        } else { autoStockValuationListEl.innerHTML = '<li class="item-row subtext">No active investments linked.</li>'; }
+
+        data.savings.forEach((item, idx) => {
+            const runningBalance = item.amount - bankDeductionsMap[idx];
+            const hkdVal = runningBalance * (liveRates[item.currency] || 1);
+            totalSavingsHKD += hkdVal;
+            
+            const li = document.createElement('li'); li.className = 'item-row';
+            li.innerHTML = `
+                <div class="item-left-block">
+                    <div class="icon-circle">${item.type === 'Bank' ? '🏦' : '💼'}</div>
+                    <div class="item-details">
+                        <div class="name">${item.name}</div>
+                        <div class="subtext">${runningBalance.toLocaleString()} ${item.currency}</div>
+                    </div>
+                </div>
+                <div class="item-val-wrapper">
+                    <span class="val-pill pill-green">HK$ ${hkdVal.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+                    <button class="del-btn" onclick="deleteItem('savings', ${idx})">&times;</button>
+                </div>
+            `;
+            if(item.type === 'Bank') bankListEl.appendChild(li); else investListEl.appendChild(li);
+        });
+        document.getElementById('savingsTotal').innerText = `HK$ ${totalSavingsHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+
+        // Credit Cards Debt
+        const ccListEl = document.getElementById('creditCardList'); ccListEl.innerHTML = '';
+        let totalCardDebtHKD = 0;
+        data.creditCards.forEach((card, idx) => {
+            const outstandingAmt = cardDebtAccruals[idx];
+            const debtInHKD = outstandingAmt * (liveRates[card.currency] || 1);
+            totalCardDebtHKD += debtInHKD;
+            
+            const li = document.createElement('li'); li.className = 'item-row';
+            li.innerHTML = `
+                <div class="item-left-block">
+                    <div class="icon-circle" style="background:#fef2f2; color:#ef4444;">💳</div>
+                    <div class="item-details">
+                        <div class="name">${card.name}</div>
+                        <div class="subtext">${card.bank} &bull; ${card.currency}</div>
+                    </div>
+                </div>
+                <div class="item-val-wrapper">
+                    <span class="val-pill pill-red">-${outstandingAmt.toLocaleString()} ${card.currency}</span>
+                    <button class="del-btn" onclick="deleteItem('creditCards', ${idx})">&times;</button>
+                </div>
+            `;
+            ccListEl.appendChild(li);
+        });
+        document.getElementById('cardsTotal').innerText = `HK$ ${totalCardDebtHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+    }
+
+    function renderPieChart(totalsData) {
+        const chartCard = document.getElementById('chartCard');
+        const values = Object.values(totalsData);
+        if (values.reduce((a, b) => a + b, 0) === 0) { chartCard.style.display = 'none'; return; }
+        chartCard.style.display = 'block';
+        const ctx = document.getElementById('categoryChart').getContext('2d');
+        if (categoryPieChart) { categoryPieChart.data.datasets[0].data = values; categoryPieChart.update(); } 
+        else {
+            categoryPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: { labels: Object.keys(totalsData), datasets: [{ data: values, backgroundColor: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#64748b'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 9, weight: 'bold' } } } } }
+            });
+        }
+    }
+
+    document.getElementById('expenseForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const selectedCurrency = document.getElementById('expCurrency').value;
+        const targetPeriodMonth = new Date().toISOString().substring(0, 7); 
+        const pMethod = document.getElementById('expPaymentMethod').value;
+        data.expenses.push({
+            name: document.getElementById('expName').value, category: document.getElementById('expCategory').value,
+            amount: parseFloat(document.getElementById('expAmount').value), currency: selectedCurrency, paymentMethod: pMethod,
+            cardIndex: pMethod === 'Credit Card' ? parseInt(document.getElementById('expChosenCard').value) : null,
+            bankAssetIndex: pMethod === 'Bank Transfer' ? parseInt(document.getElementById('expChosenBank').value) : null,
+            frozenRate: liveRates[selectedCurrency] || 1, periodMonth: targetPeriodMonth         
+        });
+        buildDropdownMonths(); document.getElementById('monthFilter').value = targetPeriodMonth;
+        updateUI(); document.getElementById('expenseForm').reset(); handlePaymentMethodChange();
+    });
+
+    document.getElementById('savingsForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        data.savings.push({ type: document.getElementById('assetType').value, name: document.getElementById('assetName').value, amount: parseFloat(document.getElementById('assetAmount').value), currency: document.getElementById('assetCurrency').value });
+        updateUI(); document.getElementById('savingsForm').reset(); toggleAssetLabel();
+    });
+
+    document.getElementById('stockForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        data.stocks.push({
+            market: activeStockMarket,
+            ticker: document.getElementById('stockTicker').value.trim(),
+            shares: parseFloat(document.getElementById('stockShares').value),
+            price: 0
+        });
+        document.getElementById('stockForm').reset();
+        fetchAllStockPrices();
+    });
+
+    document.getElementById('cardForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        data.creditCards.push({ name: document.getElementById('cardName').value, bank: document.getElementById('cardBank').value, currency: document.getElementById('cardCurrency').value });
+        updateUI(); document.getElementById('cardForm').reset();
+    });
+
+    function deleteItem(cat, idx) { data[cat].splice(idx, 1); if(cat==='expenses') buildDropdownMonths(); updateUI(); }
+    function centerClear(cat) { data[cat] = []; if(cat==='expenses') buildDropdownMonths(); updateUI(); }
+    function clearData(cat) { if(confirm(`Flush entries for ${cat}?`)) centerClear(cat); }
+
+    fetchRates();
+    setInterval(fetchAllStockPrices, 300000);
+</script>
+</body>
+</html>
