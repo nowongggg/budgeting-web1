@@ -14,10 +14,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         :root {
-            --bg-color: #f7f7f9;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --text-main: #1e293b;
-            --text-sub: #94a3b8;
+            --text-sub: #64748b;
             --border-light: #f1f5f9;
             
             --pill-red-bg: #fee2e2;
@@ -29,7 +29,7 @@
             --pill-blue-bg: #e0f2fe;
             --pill-blue-text: #0284c7;
             
-            --primary-purple: #10b981; /* Synced green header accent theme matching your screenshots */
+            --primary-purple: #6366f1;
         }
         
         * { 
@@ -51,44 +51,40 @@
         
         .top-date-header {
             text-align: center;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: var(--primary-purple);
-            margin: 15px 0 20px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
+            margin: 10px 0 20px 0;
         }
 
         .total-card {
-            background: #0ca678; /* Clean green design match */
+            background: #ffffff;
             padding: 24px;
             border-radius: 24px;
             text-align: center; 
-            color: white;
             margin-bottom: 20px;
-            box-shadow: 0 4px 18px rgba(12, 166, 120, 0.15);
+            border: 1px solid var(--border-light);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
         }
-        .total-card h2 { margin: 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.85); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; }
-        .total-amount { font-size: 2.3rem; font-weight: 800; margin-top: 8px; color: #ffffff; letter-spacing: -0.5px; }
+        .total-card h2 { margin: 0; font-size: 0.8rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+        .total-amount { font-size: 2.4rem; font-weight: 800; margin-top: 8px; color: #0f172a; letter-spacing: -1px; }
         
         .hero-breakdown {
             display: flex;
             justify-content: space-around;
-            margin-top: 16px;
-            padding-top: 14px;
-            border-top: 1px solid rgba(255,255,255,0.2);
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-light);
         }
         .breakdown-item { text-align: center; }
-        .breakdown-label { font-size: 0.75rem; color: rgba(255, 255, 255, 0.8); font-weight: 600; text-transform: uppercase; }
-        .breakdown-val { font-size: 1rem; font-weight: 700; margin-top: 2px; }
-        .breakdown-val.inc { color: #fff; }
-        .breakdown-val.exp { color: #ffe3e3; }
+        .breakdown-label { font-size: 0.75rem; color: var(--text-sub); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .breakdown-val { font-size: 1.05rem; font-weight: 700; margin-top: 4px; }
+        .breakdown-val.inc { color: #16a34a; }
+        .breakdown-val.exp { color: #dc2626; }
 
         .card {
             background: var(--card-bg);
-            padding: 20px;
+            padding: 22px;
             border-radius: 24px;
             margin-bottom: 16px;
             border: 1px solid var(--border-light);
@@ -99,25 +95,31 @@
         .form-row { display: flex; gap: 12px; margin-bottom: 16px; }
         .form-row .form-group { flex: 1; margin-bottom: 0; }
         
-        label { display: block; margin-bottom: 6px; font-size: 0.8rem; font-weight: 600; color: #64748b; }
+        label { display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 600; color: #475569; }
         
         input, select {
             width: 100%; padding: 14px; border: 1px solid #e2e8f0;
             border-radius: 14px; font-size: 0.95rem; font-weight: 500;
-            background-color: #f8fafc; color: var(--text-main); outline: none; transition: all 0.2s;
+            background-color: #fff; color: var(--text-main); outline: none; transition: all 0.2s;
+            appearance: none; -webkit-appearance: none;
         }
-        input:focus, select:focus { border-color: #0ca678; background-color: #fff; box-shadow: 0 0 0 3px rgba(12, 166, 120, 0.08); }
+        select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center; background-size: 16px;
+            padding-right: 40px;
+        }
+        input:focus, select:focus { border-color: var(--primary-purple); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
         
         button.submit-btn {
             width: 100%; color: white; border: none; padding: 15px; border-radius: 14px; 
             font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 4px;
-            background: #228be6; transition: opacity 0.1s;
+            background: #10b981; transition: opacity 0.1s;
         }
         button.submit-btn:active { opacity: 0.85; }
         
         .list-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 12px; margin-bottom: 12px; }
         .list-header h3 { margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--text-main); }
-        .section-title { font-weight: 700; font-size: 0.8rem; margin: 20px 0 10px 0; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.6px;}
+        .section-title { font-weight: 700; font-size: 0.8rem; margin: 20px 0 10px 0; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.6px;}
         
         .clear-btn { background: none; color: #ef4444; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
         .item-list { list-style: none; padding: 0; margin: 0; }
@@ -159,10 +161,9 @@
         .market-option.active { background: white; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 
         .api-status { font-size: 0.75rem; color: var(--text-sub); text-align: center; margin-top: -10px; margin-bottom: 16px; font-weight: 500;}
-        .refresh-pill { color: #0ca678; font-weight: 700; cursor: pointer; margin-left: 4px; text-decoration: underline;}
+        .refresh-pill { color: var(--primary-purple); font-weight: 700; cursor: pointer; margin-left: 4px; text-decoration: underline;}
 
-        .form-switcher { display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 14px; margin-bottom: 16px;}
-        .form-switcher-tab { display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 14px; margin-bottom: 20px;}
+        .form-switcher { display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 14px; margin-bottom: 20px;}
         .form-switch-btn { flex:1; text-align:center; padding: 10px; font-size:0.85rem; font-weight:700; border-radius:10px; cursor:pointer; color:#64748b; transition: all 0.2s;}
         .form-switch-btn.active { background:#fff; color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.03);}
         .sub-form-block { display: none; }
@@ -179,9 +180,10 @@
             display: flex; flex-direction: column; align-items: center; gap: 4px;
             background: none; border: none; cursor: pointer; color: #94a3b8; width: 65px; padding: 8px 0;
         }
-        .nav-icon { font-size: 1.5rem; line-height: 1; transition: transform 0.1s; }
+        .nav-icon { font-size: 1.4rem; line-height: 1; transition: transform 0.1s; filter: grayscale(1); opacity: 0.6; }
         .nav-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2px; }
-        .nav-item.active { color: #0ca678; }
+        .nav-item.active { color: var(--primary-purple); }
+        .nav-item.active .nav-icon { filter: grayscale(0); opacity: 1; }
         .nav-item:active .nav-icon { transform: scale(0.9); }
         
         .tab-content { display: none; }
@@ -196,7 +198,7 @@
 <div class="container">
     
     <div class="top-date-header">
-        <span id="headerPeriodDisplay">Analytics Engine</span>
+        <span id="headerPeriodDisplay">June 2026</span>
     </div>
     
     <div id="expenses-tab" class="tab-content active">
@@ -218,7 +220,7 @@
 
         <div class="card" style="padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;">
             <label style="margin-bottom:0;">View Statement Month</label>
-            <select id="monthFilter" onchange="updateUI()" style="width: auto; padding: 6px 12px; border-radius: 10px; background-color: #fff;"></select>
+            <select id="monthFilter" onchange="updateUI()" style="width: auto; padding: 6px 32px 6px 12px; border-radius: 10px; background-color: #fff; font-size: 0.9rem;"></select>
         </div>
 
         <div class="card" id="chartCard" style="display:none;">
@@ -275,14 +277,14 @@
                         <select id="expChosenOctopus"></select>
                     </div>
                     <div class="form-group" id="bankSelectGroup" style="display: none;">
-                        <label style="color: #0ca678;">Source Bank Account</label>
+                        <label style="color: #16a34a;">Source Bank Account</label>
                         <select id="expChosenBank"></select>
                     </div>
                     <div class="form-group" id="creditCardSelectGroup" style="display: none;">
-                        <label style="color: #228be6;">Linked Credit Card</label>
+                        <label style="color: var(--primary-purple);">Linked Credit Card</label>
                         <select id="expChosenCard"></select>
                     </div>
-                    <button type="submit" class="submit-btn">Add Expense</button>
+                    <button type="submit" class="submit-btn" style="background: var(--primary-purple);">Add Expense</button>
                 </form>
             </div>
 
@@ -314,10 +316,10 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label style="color: #0ca678;">Destination Vault Account (Optional)</label>
+                        <label style="color: #16a34a;">Destination Vault Account (Optional)</label>
                         <select id="incChosenBank"></select>
                     </div>
-                    <button type="submit" class="submit-btn" style="background: #0ca678;">Log Income Inflow</button>
+                    <button type="submit" class="submit-btn" style="background: #10b981;">Log Income Inflow</button>
                 </form>
             </div>
         </div>
@@ -333,17 +335,17 @@
 
     <div id="savings-tab" class="tab-content">
         <div class="total-card">
-            <h2>Total Savings & Equities</h2>
+            <h2>Total Net Savings Assets</h2>
             <div class="total-amount" id="savingsTotal">HK$ 0.00</div>
         </div>
         <div class="card">
             <form id="savingsForm">
                 <div class="form-group">
-                    <label>Asset Type</label>
+                    <label>Asset Track Base</label>
                     <select id="assetType" onchange="toggleAssetLabel()">
-                        <option value="Bank">Bank Account</option>
+                        <option value="Bank">Bank / Liquid Capital</option>
                         <option value="Octopus">🐙 Octopus Smart Card</option>
-                        <option value="Investment">Other Cash Investments / Apps</option>
+                        <option value="Investment">Fixed Brokerage / Platforms</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -352,7 +354,7 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group" style="flex: 1.8;">
-                        <label>Initial Balance Amount</label>
+                        <label id="balanceLabel">Opening Vault Balance</label>
                         <input type="number" id="assetAmount" step="0.01" placeholder="0.00" required>
                     </div>
                     <div class="form-group" style="flex: 1.2;">
@@ -360,7 +362,7 @@
                         <select id="assetCurrency" class="curr-select"></select>
                     </div>
                 </div>
-                <button type="submit" class="submit-btn" style="background: #0ca678;">Add Vault Asset</button>
+                <button type="submit" class="submit-btn" style="background: #10b981;">Add Vault Asset</button>
             </form>
         </div>
         <div class="card">
@@ -371,7 +373,7 @@
             <div class="section-title">🐙 Octopus Cards (Live Wallet)</div>
             <ul class="item-list" id="octopusCardAssetList"></ul>
             
-            <div class="section-title">🏦 Cash & Liquid Banks</div>
+            <div class="section-title">🏦 Cash & Liquid Capital</div>
             <ul class="item-list" id="bankList"></ul>
             
             <div class="section-title">📊 Automated Equities Sync</div>
@@ -413,7 +415,7 @@
                         <input type="number" id="stockShares" step="0.0001" placeholder="0" required>
                     </div>
                 </div>
-                <button type="submit" class="submit-btn" style="background: #4f46e5;">Link Asset Ticker</button>
+                <button type="submit" class="submit-btn" style="background: var(--primary-purple);">Link Asset Ticker</button>
             </form>
         </div>
         <div class="card">
@@ -426,9 +428,9 @@
     </div>
 
     <div id="cards-tab" class="tab-content">
-        <div class="total-card" style="background:#e03131; box-shadow: 0 4px 18px rgba(224, 49, 49, 0.15);">
+        <div class="total-card">
             <h2>Aggregated Statement Debt</h2>
-            <div class="total-amount" id="cardsTotal" style="color: #ffffff;">HK$ 0.00</div>
+            <div class="total-amount" id="cardsTotal" style="color: #dc2626;">HK$ 0.00</div>
         </div>
         <div class="card">
             <form id="cardForm">
@@ -475,7 +477,7 @@
     </button>
     <button class="nav-item" id="nav-cards-tab" onclick="switchTab('cards-tab')">
         <div class="nav-icon">💳</div>
-        <div class="nav-label">Credit Cards</div>
+        <div class="nav-label">Cards</div>
     </button>
 </div>
 
@@ -548,9 +550,16 @@
 
     function toggleAssetLabel() {
         const type = document.getElementById('assetType').value;
-        if (type === 'Bank') document.getElementById('nameLabel').innerText = 'Bank Name';
-        else if (type === 'Octopus') document.getElementById('nameLabel').innerText = 'Octopus Card Name / Label';
-        else document.getElementById('nameLabel').innerText = 'Platform Name';
+        if (type === 'Bank') {
+            document.getElementById('nameLabel').innerText = 'Bank Name';
+            document.getElementById('balanceLabel').innerText = 'Opening Vault Balance';
+        } else if (type === 'Octopus') {
+            document.getElementById('nameLabel').innerText = 'Octopus Card Name / Label';
+            document.getElementById('balanceLabel').innerText = 'Opening Vault Balance';
+        } else {
+            document.getElementById('nameLabel').innerText = 'Platform Name';
+            document.getElementById('balanceLabel').innerText = 'Opening Vault Balance';
+        }
     }
 
     function handlePaymentMethodChange() {
@@ -712,14 +721,14 @@
             }
 
             if (item.periodMonth === selectedMonth) {
-                let pLabel = isIncome ? '💰 Capital Inflow' : '💵 Cash';
+                let pLabel = isIncome ? '💰 Inflow' : '💵 Cash';
                 if (!isIncome) {
-                    if (item.category === 'Octopus Top-Up') pLabel = `⚡ Octopus Reloaded`;
+                    if (item.category === 'Octopus Top-Up') pLabel = `⚡ Octopus Top-Up`;
                     else if (item.paymentMethod === 'Credit Card') pLabel = `💳 ${data.creditCards[item.cardIndex]?.name || 'Card'}`;
                     else if (item.paymentMethod === 'Bank Transfer') pLabel = `🏦 ${data.savings[item.bankAssetIndex]?.name || 'Bank'}`;
                     else if (item.paymentMethod === 'Octopus Card') pLabel = `🐙 ${data.savings[item.octopusAssetIndex]?.name || 'Octopus'}`;
                 } else if (item.bankAssetIndex !== null && data.savings[item.bankAssetIndex]) {
-                    pLabel = `🏦 Deposited: ${data.savings[item.bankAssetIndex].name}`;
+                    pLabel = `🏦 Vault: ${data.savings[item.bankAssetIndex].name}`;
                 }
 
                 const fallbackIcon = categoryIcons[item.category] || (isIncome ? "💰" : "🌀");
@@ -741,9 +750,7 @@
             }
         });
 
-        // Set layout display values
         document.getElementById('netSavingsDisplay').innerText = `HK$ ${monthTotalExpenseHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
-        
         document.getElementById('heroIncomeTotal').innerText = `+HK$ ${monthTotalIncomeHKD.toLocaleString(undefined,{maximumFractionDigits:0})}`;
         document.getElementById('heroExpenseTotal').innerText = `-HK$ ${monthTotalExpenseHKD.toLocaleString(undefined,{maximumFractionDigits:0})}`;
         renderPieChart(categoryTotals);
@@ -824,7 +831,7 @@
             else investListEl.appendChild(li);
         });
         if (octopusCardAssetListEl.innerHTML === '') octopusCardAssetListEl.innerHTML = '<li class="item-row subtext">No smart Octopus cards active.</li>';
-        if (bankListEl.innerHTML === '') bankListEl.innerHTML = '<li class="item-row subtext">No liquid bank accounts registered.</li>';
+        if (bankListEl.innerHTML === '') bankListEl.innerHTML = '<li class="item-row subtext">No liquid balance accounts registered.</li>';
         document.getElementById('savingsTotal').innerText = `HK$ ${totalSavingsHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
 
         const ccListEl = document.getElementById('creditCardList'); ccListEl.innerHTML = '';
