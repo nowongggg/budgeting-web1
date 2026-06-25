@@ -14,13 +14,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         :root {
-            --bg-color: #fcfcfd;
+            --bg-color: #f7f7f9;
             --card-bg: #ffffff;
-            --text-main: #0f172a;
+            --text-main: #1e293b;
             --text-sub: #94a3b8;
             --border-light: #f1f5f9;
             
-            /* Theme Accent Colors from Reference UI */
+            /* Theme Accent Colors matching image_3e43a3.jpg */
             --pill-red-bg: #fee2e2;
             --pill-red-text: #ef4444;
             --pill-green-bg: #dcfce7;
@@ -31,163 +31,172 @@
             --primary-purple: #7c3aed;
         }
         
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; 
+        }
         
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 16px 16px 90px 16px; /* Extra bottom padding for floating navigation bar */
+            padding: 16px 16px 100px 16px; /* Space for the bottom navigation bar */
             display: flex;
             justify-content: center;
         }
         
-        .container { width: 100%; max-width: 500px; }
+        .container { width: 100%; max-width: 480px; }
         
-        /* Modern Native Top Info Display */
+        /* Reference UI Header Period */
         .top-date-header {
             text-align: center;
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--primary-purple);
-            margin: 10px 0 20px 0;
+            margin: 15px 0 20px 0;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
         }
 
+        /* Clean Minimalist Total Cards */
         .total-card {
             background: var(--card-bg);
-            padding: 22px;
-            border-radius: 20px;
+            padding: 24px;
+            border-radius: 24px;
             text-align: center; 
             border: 1px solid var(--border-light);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.015);
             margin-bottom: 20px;
         }
-        .total-card h2 { margin: 0; font-size: 0.8rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
-        .total-amount { font-size: 2.2rem; font-weight: 800; margin-top: 6px; color: var(--text-main); letter-spacing: -0.5px; }
+        .total-card h2 { margin: 0; font-size: 0.85rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+        .total-amount { font-size: 2.4rem; font-weight: 800; margin-top: 8px; color: var(--text-main); letter-spacing: -0.5px; }
         
-        /* Refined Native Style Cards */
+        /* Rounded iOS-Style Layout Cards */
         .card {
             background: var(--card-bg);
-            padding: 18px;
-            border-radius: 20px;
+            padding: 20px;
+            border-radius: 24px;
             margin-bottom: 16px;
             border: 1px solid var(--border-light);
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.01);
         }
         
-        .form-group { margin-bottom: 14px; }
-        .form-row { display: flex; gap: 10px; margin-bottom: 14px; }
+        .form-group { margin-bottom: 16px; }
+        .form-row { display: flex; gap: 12px; margin-bottom: 16px; }
         .form-row .form-group { flex: 1; margin-bottom: 0; }
         
         label { display: block; margin-bottom: 6px; font-size: 0.8rem; font-weight: 600; color: #64748b; }
         
         input, select {
-            width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0;
-            border-radius: 12px; font-size: 0.95rem; font-weight: 500;
+            width: 100%; padding: 14px; border: 1px solid #e2e8f0;
+            border-radius: 14px; font-size: 0.95rem; font-weight: 500;
             background-color: #f8fafc; color: var(--text-main); outline: none; transition: all 0.2s;
         }
         input:focus, select:focus { border-color: var(--primary-purple); background-color: #fff; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08); }
         
         button.submit-btn {
-            width: 100%; color: white; border: none; padding: 14px; border-radius: 12px; 
-            font-size: 0.95rem; font-weight: 600; cursor: pointer; margin-top: 4px;
+            width: 100%; color: white; border: none; padding: 15px; border-radius: 14px; 
+            font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 4px;
             background: var(--primary-purple); transition: opacity 0.1s;
         }
         button.submit-btn:active { opacity: 0.85; }
         
-        .list-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; margin-bottom: 12px; }
-        .list-header h3 { margin: 0; font-size: 1rem; font-weight: 700; color: var(--text-main); }
-        .section-title { font-weight: 700; font-size: 0.8rem; margin: 18px 0 10px 0; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.6px;}
+        .list-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 12px; margin-bottom: 12px; }
+        .list-header h3 { margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--text-main); }
+        .section-title { font-weight: 700; font-size: 0.8rem; margin: 20px 0 10px 0; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.6px;}
         
-        .clear-btn { background: none; color: #ef4444; border: none; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+        .clear-btn { background: none; color: #ef4444; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
         .item-list { list-style: none; padding: 0; margin: 0; }
         
-        /* Modern Row UI Items from Image Reference */
+        /* Row Layout based on image_3e43a3.jpg */
         .item-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid var(--border-light);
+            padding: 14px 0; border-bottom: 1px solid var(--border-light);
         }
         .item-row:last-child { border-bottom: none; }
+        .item-left-block { display: flex; align-items: center; gap: 14px; }
         
-        .item-left-block { display: flex; align-items: center; gap: 12px; }
-        
-        /* Circular Icon Backdrops */
+        /* Circular Background Icons */
         .icon-circle {
-            width: 40px; height: 40px; border-radius: 50%; 
+            width: 42px; height: 42px; border-radius: 50%; 
             display: flex; align-items: center; justify-content: center; 
-            font-size: 1.2rem; background: #f1f5f9;
+            font-size: 1.25rem; background: #f1f5f9;
         }
         
-        /* Soft Pill UI Badges for Values */
+        /* Soft Value Pill Badges matching image_3e43a3.jpg */
         .val-pill {
             padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.9rem;
-            text-align: right; min-width: 95px; display: inline-block;
+            text-align: right; min-width: 100px; display: inline-block;
         }
         .pill-neutral { background: #f1f5f9; color: var(--text-main); }
         .pill-green { background: var(--pill-green-bg); color: var(--pill-green-text); }
         .pill-red { background: var(--pill-red-bg); color: var(--pill-red-text); }
         .pill-amber { background: var(--pill-amber-bg); color: var(--pill-amber-text); }
         
-        .item-details .name { font-weight: 600; font-size: 0.95rem; color: var(--text-main); }
-        .item-details .subtext { font-size: 0.78rem; color: var(--text-sub); margin-top: 2px; font-weight: 500; }
+        .item-details .name { font-weight: 600; font-size: 1rem; color: var(--text-main); }
+        .item-details .subtext { font-size: 0.8rem; color: var(--text-sub); margin-top: 2px; font-weight: 500; }
         
-        .del-btn { background: none; color: #cbd5e1; border: none; cursor: pointer; font-size: 1.3rem; padding-left: 8px; font-weight: 300; }
+        .del-btn { background: none; color: #cbd5e1; border: none; cursor: pointer; font-size: 1.4rem; padding-left: 8px; font-weight: 300; line-height: 1; }
         .del-btn:hover { color: #ef4444; }
         
-        .market-selector { display: flex; gap: 6px; background: #f1f5f9; padding: 4px; border-radius: 12px; margin-bottom: 14px; }
+        .market-selector { display: flex; gap: 6px; background: #f1f5f9; padding: 4px; border-radius: 14px; margin-bottom: 16px; }
         .market-option {
-            flex: 1; text-align: center; padding: 10px; font-size: 0.85rem; font-weight: 600;
-            border-radius: 9px; cursor: pointer; color: #64748b; transition: all 0.2s;
+            flex: 1; text-align: center; padding: 12px; font-size: 0.85rem; font-weight: 600;
+            border-radius: 10px; cursor: pointer; color: #64748b; transition: all 0.2s;
         }
         .market-option.active { background: white; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 
-        .api-status { font-size: 0.75rem; color: var(--text-sub); text-align: center; margin-top: -10px; margin-bottom: 14px; font-weight: 500;}
+        .api-status { font-size: 0.75rem; color: var(--text-sub); text-align: center; margin-top: -10px; margin-bottom: 16px; font-weight: 500;}
         .refresh-pill { color: var(--primary-purple); font-weight: 700; cursor: pointer; margin-left: 4px; text-decoration: underline;}
         
-        /* Premium Bottom Navigation Engine */
+        /* Fixed Floating Bottom Navigation Engine */
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 72px;
-            background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(0,0,0,0.04); display: flex; justify-content: space-around;
+            position: fixed; bottom: 0; left: 0; right: 0; height: 76px;
+            background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-around;
             align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 9999;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.02);
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.03);
         }
         .nav-item {
             display: flex; flex-direction: column; align-items: center; gap: 4px;
-            background: none; border: none; cursor: pointer; color: #94a3b8; width: 60px;
+            background: none; border: none; cursor: pointer; color: #94a3b8; width: 65px; padding: 8px 0;
         }
-        .nav-icon { font-size: 1.4rem; line-height: 1; transition: transform 0.1s; }
-        .nav-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.2px; }
+        .nav-icon { font-size: 1.5rem; line-height: 1; transition: transform 0.1s; }
+        .nav-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2px; }
         .nav-item.active { color: var(--primary-purple); }
         .nav-item:active .nav-icon { transform: scale(0.9); }
         
+        /* Tab View Controller Swapping */
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.25s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-content.active { display: block; animation: tabFadeIn 0.2s ease-out; }
+        @keyframes tabFadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        .chart-container { max-width: 200px; margin: 5px auto; }
+        .chart-container { max-width: 220px; margin: 6px auto; }
     </style>
 </head>
 <body>
 
 <div class="container">
     
+    <!-- Top Display Header -->
     <div class="top-date-header">
         <span id="headerPeriodDisplay">Analytics Engine</span>
     </div>
     
+    <!-- ================= TAB CONTENT MODULES ================= -->
+    
+    <!-- TAB 1: EXPENSES -->
     <div id="expenses-tab" class="tab-content active">
         <div class="total-card">
             <h2>Total Disbursed Expenses</h2>
             <div class="total-amount" id="expenseTotal">HK$ 0.00</div>
         </div>
-        <div class="card" style="padding: 10px 16px; display: flex; align-items: center; justify-content: space-between;">
+        <div class="card" style="padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;">
             <label style="margin-bottom:0;">Statement Period</label>
-            <select id="monthFilter" onchange="updateUI()" style="width: auto; padding: 6px 12px; border-radius: 8px;"></select>
+            <select id="monthFilter" onchange="updateUI()" style="width: auto; padding: 6px 12px; border-radius: 10px; background-color: #fff;"></select>
         </div>
         <div class="card" id="chartCard" style="display:none;">
             <div class="chart-container"><canvas id="categoryChart"></canvas></div>
@@ -197,7 +206,7 @@
                 <div class="form-row">
                     <div class="form-group" style="flex: 1.8;">
                         <label>Item Description</label>
-                        <input type="text" id="expName" placeholder="MTR, Lunch, TCG Slabs" required>
+                        <input type="text" id="expName" placeholder="MTR, Lunch, Slabs" required>
                     </div>
                     <div class="form-group" style="flex: 1.2;">
                         <label>Category</label>
@@ -222,7 +231,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Payment Mode</label>
+                    <label>Payment Method</label>
                     <select id="expPaymentMethod" onchange="handlePaymentMethodChange()">
                         <option value="Cash">💵 Cash</option>
                         <option value="Octopus Card">💳 Octopus Card</option>
@@ -238,18 +247,19 @@
                     <label style="color: var(--primary-purple);">Linked Credit Card</label>
                     <select id="expChosenCard"></select>
                 </div>
-                <button type="submit" class="submit-btn">Log Expense</button>
+                <button type="submit" class="submit-btn">Add Expense</button>
             </form>
         </div>
         <div class="card">
             <div class="list-header">
-                <h3>Statement Logs</h3>
+                <h3>Expense Logs</h3>
                 <button class="clear-btn" onclick="clearData('expenses')">Clear All</button>
             </div>
             <ul class="item-list" id="expenseList"></ul>
         </div>
     </div>
 
+    <!-- TAB 2: SAVINGS -->
     <div id="savings-tab" class="tab-content">
         <div class="total-card">
             <h2>Total Net Savings Assets</h2>
@@ -266,7 +276,7 @@
                 </div>
                 <div class="form-group">
                     <label id="nameLabel">Bank Name</label>
-                    <input type="text" id="assetName" placeholder="e.g., HSBC, ZA Bank" required>
+                    <input type="text" id="assetName" placeholder="e.g., HSBC, Hang Seng" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group" style="flex: 1.8;">
@@ -288,13 +298,14 @@
             </div>
             <div class="section-title">🏦 Cash & Liquid Banks</div>
             <ul class="item-list" id="bankList"></ul>
-            <div class="section-title">📈 Automated Equities Sync</div>
+            <div class="section-title">📊 Automated Equities Sync</div>
             <ul class="item-list" id="autoStockValuationList"></ul>
             <div class="section-title">💼 Brokerage / Other Capital</div>
             <ul class="item-list" id="investList"></ul>
         </div>
     </div>
 
+    <!-- TAB 3: STOCKS -->
     <div id="stocks-tab" class="tab-content">
         <div class="total-card">
             <h2>Live Portfolio Capitalization</h2>
@@ -338,6 +349,7 @@
         </div>
     </div>
 
+    <!-- TAB 4: CREDIT CARDS -->
     <div id="cards-tab" class="tab-content">
         <div class="total-card">
             <h2>Aggregated Statement Debt</h2>
@@ -373,6 +385,7 @@
 
 </div>
 
+<!-- ================= NATIVE BOTTOM NAV TAB BAR ================= -->
 <div class="bottom-nav">
     <button class="nav-item active" id="nav-expenses-tab" onclick="switchTab('expenses-tab')">
         <div class="nav-icon">📊</div>
@@ -409,7 +422,6 @@
     let liveRates = { HKD: 1, USD: 7.84, JPY: 0.049, EUR: 8.42, GBP: 9.95, CNY: 1.08, TWD: 0.24, KRW: 0.0056 };
     let categoryPieChart = null;
 
-    // Category mapping array to grab custom UI icons cleanly
     const categoryIcons = {
         Food: "🍔",
         Transport: "🚇",
@@ -488,7 +500,7 @@
     async function fetchSingleStock(symbol, apiKey) {
         const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`;
         const res = await fetch(url);
-        if (!res.ok) throw new Error("API Limit or Blocked");
+        if (!res.ok) throw new Error("API Blocked");
         const json = await res.json();
         if (json.c && json.c !== 0) return json.c;
         return null;
