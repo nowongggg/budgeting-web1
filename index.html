@@ -29,7 +29,7 @@
             --pill-blue-bg: #e0f2fe;
             --pill-blue-text: #0284c7;
             
-            --primary-purple: #7c3aed;
+            --primary-purple: #10b981; /* Synced green header accent theme matching your screenshots */
         }
         
         * { 
@@ -62,29 +62,29 @@
         }
 
         .total-card {
-            background: var(--card-bg);
+            background: #0ca678; /* Clean green design match */
             padding: 24px;
             border-radius: 24px;
             text-align: center; 
-            border: 1px solid var(--border-light);
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.015);
+            color: white;
             margin-bottom: 20px;
+            box-shadow: 0 4px 18px rgba(12, 166, 120, 0.15);
         }
-        .total-card h2 { margin: 0; font-size: 0.85rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
-        .total-amount { font-size: 2.3rem; font-weight: 800; margin-top: 8px; color: var(--text-main); letter-spacing: -0.5px; }
+        .total-card h2 { margin: 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.85); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; }
+        .total-amount { font-size: 2.3rem; font-weight: 800; margin-top: 8px; color: #ffffff; letter-spacing: -0.5px; }
         
         .hero-breakdown {
             display: flex;
             justify-content: space-around;
             margin-top: 16px;
             padding-top: 14px;
-            border-top: 1px solid var(--border-light);
+            border-top: 1px solid rgba(255,255,255,0.2);
         }
         .breakdown-item { text-align: center; }
-        .breakdown-label { font-size: 0.75rem; color: var(--text-sub); font-weight: 600; text-transform: uppercase; }
+        .breakdown-label { font-size: 0.75rem; color: rgba(255, 255, 255, 0.8); font-weight: 600; text-transform: uppercase; }
         .breakdown-val { font-size: 1rem; font-weight: 700; margin-top: 2px; }
-        .breakdown-val.inc { color: var(--pill-green-text); }
-        .breakdown-val.exp { color: var(--pill-red-text); }
+        .breakdown-val.inc { color: #fff; }
+        .breakdown-val.exp { color: #ffe3e3; }
 
         .card {
             background: var(--card-bg);
@@ -106,12 +106,12 @@
             border-radius: 14px; font-size: 0.95rem; font-weight: 500;
             background-color: #f8fafc; color: var(--text-main); outline: none; transition: all 0.2s;
         }
-        input:focus, select:focus { border-color: var(--primary-purple); background-color: #fff; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08); }
+        input:focus, select:focus { border-color: #0ca678; background-color: #fff; box-shadow: 0 0 0 3px rgba(12, 166, 120, 0.08); }
         
         button.submit-btn {
             width: 100%; color: white; border: none; padding: 15px; border-radius: 14px; 
             font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 4px;
-            background: var(--primary-purple); transition: opacity 0.1s;
+            background: #228be6; transition: opacity 0.1s;
         }
         button.submit-btn:active { opacity: 0.85; }
         
@@ -159,9 +159,10 @@
         .market-option.active { background: white; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 
         .api-status { font-size: 0.75rem; color: var(--text-sub); text-align: center; margin-top: -10px; margin-bottom: 16px; font-weight: 500;}
-        .refresh-pill { color: var(--primary-purple); font-weight: 700; cursor: pointer; margin-left: 4px; text-decoration: underline;}
+        .refresh-pill { color: #0ca678; font-weight: 700; cursor: pointer; margin-left: 4px; text-decoration: underline;}
 
         .form-switcher { display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 14px; margin-bottom: 16px;}
+        .form-switcher-tab { display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 14px; margin-bottom: 20px;}
         .form-switch-btn { flex:1; text-align:center; padding: 10px; font-size:0.85rem; font-weight:700; border-radius:10px; cursor:pointer; color:#64748b; transition: all 0.2s;}
         .form-switch-btn.active { background:#fff; color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.03);}
         .sub-form-block { display: none; }
@@ -180,7 +181,7 @@
         }
         .nav-icon { font-size: 1.5rem; line-height: 1; transition: transform 0.1s; }
         .nav-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2px; }
-        .nav-item.active { color: var(--primary-purple); }
+        .nav-item.active { color: #0ca678; }
         .nav-item:active .nav-icon { transform: scale(0.9); }
         
         .tab-content { display: none; }
@@ -200,7 +201,7 @@
     
     <div id="expenses-tab" class="tab-content active">
         <div class="total-card">
-            <h2>Net Monthly Savings</h2>
+            <h2>Total Expenses</h2>
             <div class="total-amount" id="netSavingsDisplay">HK$ 0.00</div>
             
             <div class="hero-breakdown">
@@ -216,7 +217,7 @@
         </div>
 
         <div class="card" style="padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;">
-            <label style="margin-bottom:0;">Statement Period</label>
+            <label style="margin-bottom:0;">View Statement Month</label>
             <select id="monthFilter" onchange="updateUI()" style="width: auto; padding: 6px 12px; border-radius: 10px; background-color: #fff;"></select>
         </div>
 
@@ -264,8 +265,8 @@
                         <label>Payment Method</label>
                         <select id="expPaymentMethod" onchange="handlePaymentMethodChange()">
                             <option value="Cash">💵 Cash</option>
-                            <option value="Octopus Card">💳 Octopus Card Balance</option>
-                            <option value="Bank Transfer">🏦 Bank Transfer</option>
+                            <option value="Octopus Card">🐙 Octopus Card Balance</option>
+                            <option value="Bank Transfer">🏦 Bank Account</option>
                             <option value="Credit Card">💳 Credit Card</option>
                         </select>
                     </div>
@@ -274,11 +275,11 @@
                         <select id="expChosenOctopus"></select>
                     </div>
                     <div class="form-group" id="bankSelectGroup" style="display: none;">
-                        <label style="color: var(--pill-green-text);">Source Bank Account</label>
+                        <label style="color: #0ca678;">Source Bank Account</label>
                         <select id="expChosenBank"></select>
                     </div>
                     <div class="form-group" id="creditCardSelectGroup" style="display: none;">
-                        <label style="color: var(--primary-purple);">Linked Credit Card</label>
+                        <label style="color: #228be6;">Linked Credit Card</label>
                         <select id="expChosenCard"></select>
                     </div>
                     <button type="submit" class="submit-btn">Add Expense</button>
@@ -313,17 +314,17 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label style="color: var(--pill-green-text);">Destination Vault Account (Optional)</label>
+                        <label style="color: #0ca678;">Destination Vault Account (Optional)</label>
                         <select id="incChosenBank"></select>
                     </div>
-                    <button type="submit" class="submit-btn" style="background: #10b981;">Log Income Inflow</button>
+                    <button type="submit" class="submit-btn" style="background: #0ca678;">Log Income Inflow</button>
                 </form>
             </div>
         </div>
 
         <div class="card">
             <div class="list-header">
-                <h3>Cash Flow Logs</h3>
+                <h3>Expense Logs</h3>
                 <button class="clear-btn" onclick="clearData('expenses')">Clear All</button>
             </div>
             <ul class="item-list" id="expenseList"></ul>
@@ -332,26 +333,26 @@
 
     <div id="savings-tab" class="tab-content">
         <div class="total-card">
-            <h2>Total Net Savings Assets</h2>
+            <h2>Total Savings & Equities</h2>
             <div class="total-amount" id="savingsTotal">HK$ 0.00</div>
         </div>
         <div class="card">
             <form id="savingsForm">
                 <div class="form-group">
-                    <label>Asset Track Base</label>
+                    <label>Asset Type</label>
                     <select id="assetType" onchange="toggleAssetLabel()">
-                        <option value="Bank">Bank / Liquid Capital</option>
+                        <option value="Bank">Bank Account</option>
                         <option value="Octopus">🐙 Octopus Smart Card</option>
-                        <option value="Investment">Fixed Brokerage Platforms</option>
+                        <option value="Investment">Other Cash Investments / Apps</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label id="nameLabel">Bank Name</label>
-                    <input type="text" id="assetName" placeholder="e.g., HSBC, Personal Octopus" required>
+                    <input type="text" id="assetName" placeholder="e.g., HSBC, ZA Bank" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group" style="flex: 1.8;">
-                        <label>Opening Vault Balance</label>
+                        <label>Initial Balance Amount</label>
                         <input type="number" id="assetAmount" step="0.01" placeholder="0.00" required>
                     </div>
                     <div class="form-group" style="flex: 1.2;">
@@ -359,7 +360,7 @@
                         <select id="assetCurrency" class="curr-select"></select>
                     </div>
                 </div>
-                <button type="submit" class="submit-btn" style="background: #10b981;">Add Vault Asset</button>
+                <button type="submit" class="submit-btn" style="background: #0ca678;">Add Vault Asset</button>
             </form>
         </div>
         <div class="card">
@@ -367,7 +368,7 @@
                 <h3>Asset Ledger</h3>
                 <button class="clear-btn" onclick="clearData('savings')">Clear All</button>
             </div>
-            <div class="section-title">💳 Octopus Cards (Live Wallet)</div>
+            <div class="section-title">🐙 Octopus Cards (Live Wallet)</div>
             <ul class="item-list" id="octopusCardAssetList"></ul>
             
             <div class="section-title">🏦 Cash & Liquid Banks</div>
@@ -425,9 +426,9 @@
     </div>
 
     <div id="cards-tab" class="tab-content">
-        <div class="total-card">
+        <div class="total-card" style="background:#e03131; box-shadow: 0 4px 18px rgba(224, 49, 49, 0.15);">
             <h2>Aggregated Statement Debt</h2>
-            <div class="total-amount" id="cardsTotal" style="color: #ef4444;">HK$ 0.00</div>
+            <div class="total-amount" id="cardsTotal" style="color: #ffffff;">HK$ 0.00</div>
         </div>
         <div class="card">
             <form id="cardForm">
@@ -462,7 +463,7 @@
 <div class="bottom-nav">
     <button class="nav-item active" id="nav-expenses-tab" onclick="switchTab('expenses-tab')">
         <div class="nav-icon">📊</div>
-        <div class="nav-label">Flow</div>
+        <div class="nav-label">Expenses</div>
     </button>
     <button class="nav-item" id="nav-savings-tab" onclick="switchTab('savings-tab')">
         <div class="nav-icon">🏦</div>
@@ -474,7 +475,7 @@
     </button>
     <button class="nav-item" id="nav-cards-tab" onclick="switchTab('cards-tab')">
         <div class="nav-icon">💳</div>
-        <div class="nav-label">Cards</div>
+        <div class="nav-label">Credit Cards</div>
     </button>
 </div>
 
@@ -549,7 +550,7 @@
         const type = document.getElementById('assetType').value;
         if (type === 'Bank') document.getElementById('nameLabel').innerText = 'Bank Name';
         else if (type === 'Octopus') document.getElementById('nameLabel').innerText = 'Octopus Card Name / Label';
-        else document.getElementById('nameLabel').innerText = 'Investment Platform Name';
+        else document.getElementById('nameLabel').innerText = 'Platform Name';
     }
 
     function handlePaymentMethodChange() {
@@ -560,7 +561,6 @@
         document.getElementById('creditCardSelectGroup').style.display = 'none';
         document.getElementById('octopusSelectGroup').style.display = 'none';
 
-        // Override visual toggle: if setting up a Top-Up, force bank visibility fields to track the out-source
         if (category === 'Octopus Top-Up') {
             document.getElementById('bankSelectGroup').style.display = 'block';
             if (data.savings.filter(s => s.type === 'Octopus').length > 0) {
@@ -634,7 +634,7 @@
         filterEl.innerHTML = '';
         sortedMonths.forEach(m => {
             let opt = document.createElement('option'); opt.value = m;
-            opt.innerText = new Date(m + "-02").toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            opt.innerText = new Date(m + "-02").toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
             filterEl.appendChild(opt);
         });
         filterEl.value = (savedSelection && sortedMonths.includes(savedSelection)) ? savedSelection : currentPeriod;
@@ -741,10 +741,8 @@
             }
         });
 
-        const netSavingsPos = monthTotalIncomeHKD - monthTotalExpenseHKD;
-        const netEl = document.getElementById('netSavingsDisplay');
-        netEl.innerText = `${netSavingsPos >= 0 ? '+' : ''}HK$ ${netSavingsPos.toLocaleString(undefined,{minimumFractionDigits:2})}`;
-        netEl.style.color = netSavingsPos >= 0 ? 'var(--pill-green-text)' : 'var(--pill-red-text)';
+        // Set layout display values
+        document.getElementById('netSavingsDisplay').innerText = `HK$ ${monthTotalExpenseHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
         
         document.getElementById('heroIncomeTotal').innerText = `+HK$ ${monthTotalIncomeHKD.toLocaleString(undefined,{maximumFractionDigits:0})}`;
         document.getElementById('heroExpenseTotal').innerText = `-HK$ ${monthTotalExpenseHKD.toLocaleString(undefined,{maximumFractionDigits:0})}`;
