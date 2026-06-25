@@ -201,6 +201,7 @@
         <span id="headerPeriodDisplay">June 2026</span>
     </div>
     
+    <!-- ================= CASH FLOW TAB ================= -->
     <div id="expenses-tab" class="tab-content active">
         <div class="total-card">
             <h2>Total Expenses</h2>
@@ -233,6 +234,7 @@
                 <div class="form-switch-btn" id="btn-switch-income" onclick="toggleFormBlock('income')">💰 Add Income</div>
             </div>
 
+            <!-- EXPENSE BLOCK -->
             <div id="form-block-expense" class="sub-form-block active">
                 <form id="expenseForm">
                     <div class="form-row">
@@ -288,6 +290,7 @@
                 </form>
             </div>
 
+            <!-- INCOME BLOCK -->
             <div id="form-block-income" class="sub-form-block">
                 <form id="incomeForm">
                     <div class="form-row">
@@ -333,6 +336,7 @@
         </div>
     </div>
 
+    <!-- ================= SAVINGS / ASSETS TAB ================= -->
     <div id="savings-tab" class="tab-content">
         <div class="total-card">
             <h2>Total Net Savings Assets</h2>
@@ -384,6 +388,7 @@
         </div>
     </div>
 
+    <!-- ================= STOCKS TAB ================= -->
     <div id="stocks-tab" class="tab-content">
         <div class="total-card">
             <h2>Live Portfolio Capitalization</h2>
@@ -427,6 +432,7 @@
         </div>
     </div>
 
+    <!-- ================= CREDIT CARDS TAB ================= -->
     <div id="cards-tab" class="tab-content">
         <div class="total-card">
             <h2>Aggregated Statement Debt</h2>
@@ -462,6 +468,7 @@
 
 </div>
 
+<!-- ================= NAVIGATION BAR ================= -->
 <div class="bottom-nav">
     <button class="nav-item active" id="nav-expenses-tab" onclick="switchTab('expenses-tab')">
         <div class="nav-icon">📊</div>
@@ -858,6 +865,8 @@
             ccListEl.appendChild(li);
         });
         document.getElementById('cardsTotal').innerText = `HK$ ${totalCardDebtHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+        
+        handlePaymentMethodChange(); 
     }
 
     function renderPieChart(totalsData) {
