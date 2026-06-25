@@ -3,8 +3,8 @@
   "short_name": "Balance",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f7f7f9",
-  "theme_color": "#10b981",
+  "background_color": "#f8fafc",
+  "theme_color": "#6366f1",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/2454/2454269.png",
