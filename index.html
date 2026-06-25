@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Tracker">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2454/2454269.png">
+    <link class="apple-touch-icon" rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2454/2454269.png">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
@@ -20,13 +20,14 @@
             --text-sub: #94a3b8;
             --border-light: #f1f5f9;
             
-            /* Theme Accent Colors matching image_3e43a3.jpg */
             --pill-red-bg: #fee2e2;
             --pill-red-text: #ef4444;
             --pill-green-bg: #dcfce7;
             --pill-green-text: #16a34a;
             --pill-amber-bg: #fef3c7;
             --pill-amber-text: #d97706;
+            --pill-blue-bg: #e0f2fe;
+            --pill-blue-text: #0284c7;
             
             --primary-purple: #7c3aed;
         }
@@ -41,14 +42,13 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 16px 16px 100px 16px; /* Space for the bottom navigation bar */
+            padding: 16px 16px 100px 16px;
             display: flex;
             justify-content: center;
         }
         
         .container { width: 100%; max-width: 480px; }
         
-        /* Reference UI Header Period */
         .top-date-header {
             text-align: center;
             font-size: 1.2rem;
@@ -61,7 +61,6 @@
             gap: 6px;
         }
 
-        /* Clean Minimalist Total Cards */
         .total-card {
             background: var(--card-bg);
             padding: 24px;
@@ -72,9 +71,22 @@
             margin-bottom: 20px;
         }
         .total-card h2 { margin: 0; font-size: 0.85rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
-        .total-amount { font-size: 2.4rem; font-weight: 800; margin-top: 8px; color: var(--text-main); letter-spacing: -0.5px; }
+        .total-amount { font-size: 2.3rem; font-weight: 800; margin-top: 8px; color: var(--text-main); letter-spacing: -0.5px; }
         
-        /* Rounded iOS-Style Layout Cards */
+        /* Mini Summary Row inside Hero Card */
+        .hero-breakdown {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-light);
+        }
+        .breakdown-item { text-align: center; }
+        .breakdown-label { font-size: 0.75rem; color: var(--text-sub); font-weight: 600; text-transform: uppercase; }
+        .breakdown-val { font-size: 1rem; font-weight: 700; margin-top: 2px; }
+        .breakdown-val.inc { color: var(--pill-green-text); }
+        .breakdown-val.exp { color: var(--pill-red-text); }
+
         .card {
             background: var(--card-bg);
             padding: 20px;
@@ -111,7 +123,6 @@
         .clear-btn { background: none; color: #ef4444; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
         .item-list { list-style: none; padding: 0; margin: 0; }
         
-        /* Row Layout based on image_3e43a3.jpg */
         .item-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 14px 0; border-bottom: 1px solid var(--border-light);
@@ -119,14 +130,12 @@
         .item-row:last-child { border-bottom: none; }
         .item-left-block { display: flex; align-items: center; gap: 14px; }
         
-        /* Circular Background Icons */
         .icon-circle {
             width: 42px; height: 42px; border-radius: 50%; 
             display: flex; align-items: center; justify-content: center; 
             font-size: 1.25rem; background: #f1f5f9;
         }
         
-        /* Soft Value Pill Badges matching image_3e43a3.jpg */
         .val-pill {
             padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.9rem;
             text-align: right; min-width: 100px; display: inline-block;
@@ -135,6 +144,7 @@
         .pill-green { background: var(--pill-green-bg); color: var(--pill-green-text); }
         .pill-red { background: var(--pill-red-bg); color: var(--pill-red-text); }
         .pill-amber { background: var(--pill-amber-bg); color: var(--pill-amber-text); }
+        .pill-blue { background: var(--pill-blue-bg); color: var(--pill-blue-text); }
         
         .item-details .name { font-weight: 600; font-size: 1rem; color: var(--text-main); }
         .item-details .subtext { font-size: 0.8rem; color: var(--text-sub); margin-top: 2px; font-weight: 500; }
@@ -151,8 +161,14 @@
 
         .api-status { font-size: 0.75rem; color: var(--text-sub); text-align: center; margin-top: -10px; margin-bottom: 16px; font-weight: 500;}
         .refresh-pill { color: var(--primary-purple); font-weight: 700; cursor: pointer; margin-left: 4px; text-decoration: underline;}
+
+        /* Unified Form Switcher Pill Tab */
+        .form-switcher { display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 14px; margin-bottom: 16px;}
+        .form-switch-btn { flex:1; text-align:center; padding: 10px; font-size:0.85rem; font-weight:700; border-radius:10px; cursor:pointer; color:#64748b; transition: all 0.2s;}
+        .form-switch-btn.active { background:#fff; color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.03);}
+        .sub-form-block { display: none; }
+        .sub-form-block.active { display: block; }
         
-        /* Fixed Floating Bottom Navigation Engine */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0; height: 76px;
             background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -169,7 +185,6 @@
         .nav-item.active { color: var(--primary-purple); }
         .nav-item:active .nav-icon { transform: scale(0.9); }
         
-        /* Tab View Controller Swapping */
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: tabFadeIn 0.2s ease-out; }
         @keyframes tabFadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -181,85 +196,147 @@
 
 <div class="container">
     
-    <!-- Top Display Header -->
     <div class="top-date-header">
         <span id="headerPeriodDisplay">Analytics Engine</span>
     </div>
     
-    <!-- ================= TAB CONTENT MODULES ================= -->
-    
-    <!-- TAB 1: EXPENSES -->
+    <!-- ================= CASH FLOW TAB (INCOME & EXPENSES) ================= -->
     <div id="expenses-tab" class="tab-content active">
         <div class="total-card">
-            <h2>Total Disbursed Expenses</h2>
-            <div class="total-amount" id="expenseTotal">HK$ 0.00</div>
+            <h2>Net Monthly Savings</h2>
+            <div class="total-amount" id="netSavingsDisplay">HK$ 0.00</div>
+            
+            <div class="hero-breakdown">
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Inflow</div>
+                    <div class="breakdown-val inc" id="heroIncomeTotal">+HK$ 0</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Outflow</div>
+                    <div class="breakdown-val exp" id="heroExpenseTotal">-HK$ 0</div>
+                </div>
+            </div>
         </div>
+
         <div class="card" style="padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;">
             <label style="margin-bottom:0;">Statement Period</label>
             <select id="monthFilter" onchange="updateUI()" style="width: auto; padding: 6px 12px; border-radius: 10px; background-color: #fff;"></select>
         </div>
+
         <div class="card" id="chartCard" style="display:none;">
             <div class="chart-container"><canvas id="categoryChart"></canvas></div>
         </div>
+
+        <!-- Input Block Container for Income and Expenses switcher -->
         <div class="card">
-            <form id="expenseForm">
-                <div class="form-row">
-                    <div class="form-group" style="flex: 1.8;">
-                        <label>Item Description</label>
-                        <input type="text" id="expName" placeholder="MTR, Lunch, Slabs" required>
+            <div class="form-switcher">
+                <div class="form-switch-btn active" id="btn-switch-expense" onclick="toggleFormBlock('expense')">💸 Add Expense</div>
+                <div class="form-switch-btn" id="btn-switch-income" onclick="toggleFormBlock('income')">💰 Add Income</div>
+            </div>
+
+            <!-- EXPENSE SUB-FORM -->
+            <div id="form-block-expense" class="sub-form-block active">
+                <form id="expenseForm">
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1.8;">
+                            <label>Item Description</label>
+                            <input type="text" id="expName" placeholder="MTR, Lunch, Slabs" required>
+                        </div>
+                        <div class="form-group" style="flex: 1.2;">
+                            <label>Category</label>
+                            <select id="expCategory">
+                                <option value="Food">🍔 Food</option>
+                                <option value="Transport">🚇 Transport</option>
+                                <option value="Shopping">🛍️ Shopping</option>
+                                <option value="Entertainment">🎬 Entertainment</option>
+                                <option value="Bills">📄 Bills</option>
+                                <option value="Octopus Top-Up">⚡ Octopus Top-Up</option>
+                                <option value="Others">🌀 Others</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group" style="flex: 1.2;">
-                        <label>Category</label>
-                        <select id="expCategory">
-                            <option value="Food">🍔 Food</option>
-                            <option value="Transport">🚇 Transport</option>
-                            <option value="Shopping">🛍️ Shopping</option>
-                            <option value="Entertainment">🎬 Entertainment</option>
-                            <option value="Bills">📄 Bills</option>
-                            <option value="Others">🌀 Others</option>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1.8;">
+                            <label>Amount</label>
+                            <input type="number" id="expAmount" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group" style="flex: 1.2;">
+                            <label>Currency</label>
+                            <select id="expCurrency" class="curr-select"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select id="expPaymentMethod" onchange="handlePaymentMethodChange()">
+                            <option value="Cash">💵 Cash</option>
+                            <option value="Octopus Card">💳 Octopus Card Balance</option>
+                            <option value="Bank Transfer">🏦 Bank Transfer</option>
+                            <option value="Credit Card">💳 Credit Card</option>
                         </select>
                     </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group" style="flex: 1.8;">
-                        <label>Amount</label>
-                        <input type="number" id="expAmount" step="0.01" placeholder="0.00" required>
+                    <div class="form-group" id="octopusSelectGroup" style="display: none;">
+                        <label style="color: var(--pill-blue-text);">Select Octopus Card Asset</label>
+                        <select id="expChosenOctopus"></select>
                     </div>
-                    <div class="form-group" style="flex: 1.2;">
-                        <label>Currency</label>
-                        <select id="expCurrency" class="curr-select"></select>
+                    <div class="form-group" id="bankSelectGroup" style="display: none;">
+                        <label style="color: var(--pill-green-text);">Source Bank Account</label>
+                        <select id="expChosenBank"></select>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>Payment Method</label>
-                    <select id="expPaymentMethod" onchange="handlePaymentMethodChange()">
-                        <option value="Cash">💵 Cash</option>
-                        <option value="Octopus Card">💳 Octopus Card</option>
-                        <option value="Bank Transfer">🏦 Bank Transfer</option>
-                        <option value="Credit Card">💳 Credit Card</option>
-                    </select>
-                </div>
-                <div class="form-group" id="bankSelectGroup" style="display: none;">
-                    <label style="color: var(--pill-green-text);">Source Bank Account</label>
-                    <select id="expChosenBank"></select>
-                </div>
-                <div class="form-group" id="creditCardSelectGroup" style="display: none;">
-                    <label style="color: var(--primary-purple);">Linked Credit Card</label>
-                    <select id="expChosenCard"></select>
-                </div>
-                <button type="submit" class="submit-btn">Add Expense</button>
-            </form>
+                    <div class="form-group" id="creditCardSelectGroup" style="display: none;">
+                        <label style="color: var(--primary-purple);">Linked Credit Card</label>
+                        <select id="expChosenCard"></select>
+                    </div>
+                    <button type="submit" class="submit-btn">Add Expense</button>
+                </form>
+            </div>
+
+            <!-- INCOME SUB-FORM -->
+            <div id="form-block-income" class="sub-form-block">
+                <form id="incomeForm">
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1.8;">
+                            <label>Income Stream Source</label>
+                            <input type="text" id="incName" placeholder="Salary, Dividends, eBay Sale" required>
+                        </div>
+                        <div class="form-group" style="flex: 1.2;">
+                            <label>Classification</label>
+                            <select id="incCategory">
+                                <option value="Salary">💼 Salary</option>
+                                <option value="Investments">📈 Investments</option>
+                                <option value="Business">🛍️ E-Commerce / Sales</option>
+                                <option value="Gifts">🎁 Gifts / Others</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1.8;">
+                            <label>Inflow Amount</label>
+                            <input type="number" id="incAmount" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group" style="flex: 1.2;">
+                            <label>Currency</label>
+                            <select id="incCurrency" class="curr-select"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="color: var(--pill-green-text);">Destination Vault Account (Optional)</label>
+                        <select id="incChosenBank"></select>
+                    </div>
+                    <button type="submit" class="submit-btn" style="background: #10b981;">Log Income Inflow</button>
+                </form>
+            </div>
         </div>
+
         <div class="card">
             <div class="list-header">
-                <h3>Expense Logs</h3>
+                <h3>Cash Flow Logs</h3>
                 <button class="clear-btn" onclick="clearData('expenses')">Clear All</button>
             </div>
             <ul class="item-list" id="expenseList"></ul>
         </div>
     </div>
 
-    <!-- TAB 2: SAVINGS -->
+    <!-- ================= SAVINGS / ASSETS TAB ================= -->
     <div id="savings-tab" class="tab-content">
         <div class="total-card">
             <h2>Total Net Savings Assets</h2>
@@ -271,12 +348,13 @@
                     <label>Asset Track Base</label>
                     <select id="assetType" onchange="toggleAssetLabel()">
                         <option value="Bank">Bank / Liquid Capital</option>
+                        <option value="Octopus">🐙 Octopus Smart Card</option>
                         <option value="Investment">Fixed Brokerage Platforms</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label id="nameLabel">Bank Name</label>
-                    <input type="text" id="assetName" placeholder="e.g., HSBC, Hang Seng" required>
+                    <input type="text" id="assetName" placeholder="e.g., HSBC, Personal Octopus" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group" style="flex: 1.8;">
@@ -296,16 +374,21 @@
                 <h3>Asset Ledger</h3>
                 <button class="clear-btn" onclick="clearData('savings')">Clear All</button>
             </div>
+            <div class="section-title">💳 Octopus Cards (Live Wallet)</div>
+            <ul class="item-list" id="octopusCardAssetList"></ul>
+            
             <div class="section-title">🏦 Cash & Liquid Banks</div>
             <ul class="item-list" id="bankList"></ul>
+            
             <div class="section-title">📊 Automated Equities Sync</div>
             <ul class="item-list" id="autoStockValuationList"></ul>
+            
             <div class="section-title">💼 Brokerage / Other Capital</div>
             <ul class="item-list" id="investList"></ul>
         </div>
     </div>
 
-    <!-- TAB 3: STOCKS -->
+    <!-- ================= STOCKS TAB ================= -->
     <div id="stocks-tab" class="tab-content">
         <div class="total-card">
             <h2>Live Portfolio Capitalization</h2>
@@ -349,7 +432,7 @@
         </div>
     </div>
 
-    <!-- TAB 4: CREDIT CARDS -->
+    <!-- ================= CREDIT CARDS TAB ================= -->
     <div id="cards-tab" class="tab-content">
         <div class="total-card">
             <h2>Aggregated Statement Debt</h2>
@@ -385,11 +468,11 @@
 
 </div>
 
-<!-- ================= NATIVE BOTTOM NAV TAB BAR ================= -->
+<!-- ================= BOTTOM NAVIGATION BAR ================= -->
 <div class="bottom-nav">
     <button class="nav-item active" id="nav-expenses-tab" onclick="switchTab('expenses-tab')">
         <div class="nav-icon">📊</div>
-        <div class="nav-label">Expenses</div>
+        <div class="nav-label">Flow</div>
     </button>
     <button class="nav-item" id="nav-savings-tab" onclick="switchTab('savings-tab')">
         <div class="nav-icon">🏦</div>
@@ -410,11 +493,12 @@
         navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
     }
 
+    // w_expenses_v7 tracks unified ledger transactions (with dynamic item.flowType = 'income' | 'expense')
     let data = {
-        expenses: JSON.parse(localStorage.getItem('w_expenses_v5')) || [],
-        savings: JSON.parse(localStorage.getItem('w_savings_v5')) || [],
-        stocks: JSON.parse(localStorage.getItem('w_stocks_v5')) || [],
-        creditCards: JSON.parse(localStorage.getItem('w_cards_v5')) || []
+        expenses: JSON.parse(localStorage.getItem('w_expenses_v7')) || [],
+        savings: JSON.parse(localStorage.getItem('w_savings_v7')) || [],
+        stocks: JSON.parse(localStorage.getItem('w_stocks_v7')) || [],
+        creditCards: JSON.parse(localStorage.getItem('w_cards_v7')) || []
     };
 
     let activeStockMarket = 'HK';
@@ -423,12 +507,8 @@
     let categoryPieChart = null;
 
     const categoryIcons = {
-        Food: "🍔",
-        Transport: "🚇",
-        Shopping: "🛍️",
-        Entertainment: "🎬",
-        Bills: "📄",
-        Others: "🌀"
+        Food: "🍔", Transport: "🚇", Shopping: "🛍️", Entertainment: "🎬", Bills: "📄", "Octopus Top-Up": "⚡", Others: "🌀",
+        Salary: "💼", Investments: "📈", Business: "🛍️", Gifts: "🎁"
     };
 
     document.getElementById('finnhubKey').value = localStorage.getItem('w_finnhub_key') || '';
@@ -450,16 +530,22 @@
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        
         document.getElementById(tabId).classList.add('active');
         document.getElementById('nav-' + tabId).classList.add('active');
+    }
+
+    function toggleFormBlock(type) {
+        document.querySelectorAll('.sub-form-block').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.form-switch-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(`form-block-${type}`).classList.add('active');
+        document.getElementById(`btn-switch-${type}`).classList.add('active');
     }
 
     function setMarket(market) {
         activeStockMarket = market;
         document.getElementById('market-hk').classList.remove('active');
         document.getElementById('market-us').classList.remove('active');
-        
         const tickerInput = document.getElementById('stockTicker');
         if(market === 'HK') {
             document.getElementById('market-hk').classList.add('active');
@@ -472,17 +558,20 @@
 
     function toggleAssetLabel() {
         const type = document.getElementById('assetType').value;
-        document.getElementById('nameLabel').innerText = type === 'Bank' ? 'Bank Name' : 'Investment Platform Name';
+        if (type === 'Bank') document.getElementById('nameLabel').innerText = 'Bank Name';
+        else if (type === 'Octopus') document.getElementById('nameLabel').innerText = 'Octopus Card Name / Label';
+        else document.getElementById('nameLabel').innerText = 'Investment Platform Name';
     }
 
     function handlePaymentMethodChange() {
         const method = document.getElementById('expPaymentMethod').value;
-        const bankGroup = document.getElementById('bankSelectGroup');
-        const ccGroup = document.getElementById('creditCardSelectGroup');
-        bankGroup.style.display = 'none'; ccGroup.style.display = 'none';
+        document.getElementById('bankSelectGroup').style.display = 'none'; 
+        document.getElementById('creditCardSelectGroup').style.display = 'none';
+        document.getElementById('octopusSelectGroup').style.display = 'none';
 
-        if (method === 'Bank Transfer' && data.savings.filter(s => s.type === 'Bank').length > 0) bankGroup.style.display = 'block';
-        if (method === 'Credit Card' && data.creditCards.length > 0) ccGroup.style.display = 'block';
+        if (method === 'Bank Transfer' && data.savings.filter(s => s.type === 'Bank').length > 0) document.getElementById('bankSelectGroup').style.display = 'block';
+        if (method === 'Credit Card' && data.creditCards.length > 0) document.getElementById('creditCardSelectGroup').style.display = 'block';
+        if (method === 'Octopus Card' && data.savings.filter(s => s.type === 'Octopus').length > 0) document.getElementById('octopusSelectGroup').style.display = 'block';
     }
 
     async function fetchRates() {
@@ -518,15 +607,11 @@
             updateUI();
             return;
         }
-
         document.getElementById('stockApiStatus').innerText = "🔄 Live synchronization active...";
-
         try {
             for(let stock of data.stocks) {
                 let symbol = stock.ticker.toUpperCase().trim();
-                if (stock.market === 'HK' && !symbol.includes('.')) {
-                    symbol = symbol.padStart(4, '0') + ".HK";
-                }
+                if (stock.market === 'HK' && !symbol.includes('.')) { symbol = symbol.padStart(4, '0') + ".HK"; }
                 const livePrice = await fetchSingleStock(symbol, apiKey);
                 if (livePrice) stock.price = livePrice;
                 await new Promise(resolve => setTimeout(resolve, 500));
@@ -556,18 +641,32 @@
     }
 
     function updateUI() {
-        localStorage.setItem('w_expenses_v5', JSON.stringify(data.expenses));
-        localStorage.setItem('w_savings_v5', JSON.stringify(data.savings));
-        localStorage.setItem('w_stocks_v5', JSON.stringify(data.stocks));
-        localStorage.setItem('w_cards_v5', JSON.stringify(data.creditCards));
+        localStorage.setItem('w_expenses_v7', JSON.stringify(data.expenses));
+        localStorage.setItem('w_savings_v7', JSON.stringify(data.savings));
+        localStorage.setItem('w_stocks_v7', JSON.stringify(data.stocks));
+        localStorage.setItem('w_cards_v7', JSON.stringify(data.creditCards));
 
         const selectedMonth = document.getElementById('monthFilter').value || new Date().toISOString().substring(0, 7);
         document.getElementById('headerPeriodDisplay').innerText = new Date(selectedMonth + "-02").toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
+        // Update dropdown banking components dynamically
         const bankSelect = document.getElementById('expChosenBank'); bankSelect.innerHTML = '';
+        const incBankSelect = document.getElementById('incChosenBank'); incBankSelect.innerHTML = '<option value="">None (Physical Cash / Unlinked)</option>';
+        
         data.savings.forEach((asset, idx) => {
             if(asset.type === 'Bank') {
-                let opt = document.createElement('option'); opt.value = idx; opt.innerText = `${asset.name} (${asset.currency})`; bankSelect.appendChild(opt);
+                let opt = document.createElement('option'); opt.value = idx; opt.innerText = `${asset.name} (${asset.currency})`; 
+                bankSelect.appendChild(opt);
+                
+                let optInc = document.createElement('option'); optInc.value = idx; optInc.innerText = `${asset.name} (${asset.currency})`;
+                incBankSelect.appendChild(optInc);
+            }
+        });
+
+        const octopusSelect = document.getElementById('expChosenOctopus'); octopusSelect.innerHTML = '';
+        data.savings.forEach((asset, idx) => {
+            if(asset.type === 'Octopus') {
+                let opt = document.createElement('option'); opt.value = idx; opt.innerText = asset.name; octopusSelect.appendChild(opt);
             }
         });
 
@@ -577,60 +676,95 @@
         });
 
         let cardDebtAccruals = data.creditCards.map(() => 0);
-        let bankDeductionsMap = data.savings.map(() => 0);
-        let categoryTotals = { Food: 0, Transport: 0, Shopping: 0, Entertainment: 0, Bills: 0, Others: 0 };
+        let bankModifiersMap = data.savings.map(() => 0); // Stores (+ Income) and (- Expenses)
+        let octopusModifiersMap = data.savings.map(() => 0); 
+        let categoryTotals = { Food: 0, Transport: 0, Shopping: 0, Entertainment: 0, Bills: 0, "Octopus Top-Up": 0, Others: 0 };
 
-        // Process logs
+        // Process unified Ledger rows
         const expListEl = document.getElementById('expenseList'); expListEl.innerHTML = '';
-        let totalFilteredMonthExpHKD = 0;
+        let monthTotalIncomeHKD = 0;
+        let monthTotalExpenseHKD = 0;
         
         data.expenses.forEach((item, idx) => {
             const itemCostInHKD = item.amount * item.frozenRate;
-            if (item.paymentMethod === 'Credit Card' && cardDebtAccruals[item.cardIndex] !== undefined) cardDebtAccruals[item.cardIndex] += itemCostInHKD / (liveRates[data.creditCards[item.cardIndex].currency] || 1);
-            if (item.paymentMethod === 'Bank Transfer' && bankDeductionsMap[item.bankAssetIndex] !== undefined) bankDeductionsMap[item.bankAssetIndex] += itemCostInHKD / (liveRates[data.savings[item.bankAssetIndex].currency] || 1);
+            const isIncome = item.flowType === 'income';
 
+            if(isIncome) {
+                // Apply global balance modifier mapping to target vault bank
+                if (item.bankAssetIndex !== null && bankModifiersMap[item.bankAssetIndex] !== undefined) {
+                    bankModifiersMap[item.bankAssetIndex] += itemCostInHKD / (liveRates[data.savings[item.bankAssetIndex].currency] || 1);
+                }
+                if (item.periodMonth === selectedMonth) monthTotalIncomeHKD += itemCostInHKD;
+            } else {
+                // Apply Outflow balance logic modifications
+                if (item.paymentMethod === 'Credit Card' && cardDebtAccruals[item.cardIndex] !== undefined) {
+                    cardDebtAccruals[item.cardIndex] += itemCostInHKD / (liveRates[data.creditCards[item.cardIndex].currency] || 1);
+                }
+                if (item.paymentMethod === 'Bank Transfer' && bankModifiersMap[item.bankAssetIndex] !== undefined) {
+                    bankModifiersMap[item.bankAssetIndex] -= itemCostInHKD / (liveRates[data.savings[item.bankAssetIndex].currency] || 1);
+                }
+                if (item.paymentMethod === 'Octopus Card' && octopusModifiersMap[item.octopusAssetIndex] !== undefined) {
+                    octopusModifiersMap[item.octopusAssetIndex] -= itemCostInHKD / (liveRates[data.savings[item.octopusAssetIndex].currency] || 1);
+                }
+                if (item.category === 'Octopus Top-Up') {
+                    let targetedOctopusIdx = item.octopusAssetIndex ?? data.savings.findIndex(s => s.type === 'Octopus');
+                    if (targetedOctopusIdx !== -1 && octopusModifiersMap[targetedOctopusIdx] !== undefined) {
+                        octopusModifiersMap[targetedOctopusIdx] += itemCostInHKD / (liveRates[data.savings[targetedOctopusIdx].currency] || 1);
+                    }
+                }
+                if (item.periodMonth === selectedMonth) {
+                    monthTotalExpenseHKD += itemCostInHKD;
+                    if(categoryTotals[item.category] !== undefined) categoryTotals[item.category] += itemCostInHKD;
+                }
+            }
+
+            // Output visual element item to current month screen logs
             if (item.periodMonth === selectedMonth) {
-                totalFilteredMonthExpHKD += itemCostInHKD;
-                if(categoryTotals[item.category] !== undefined) categoryTotals[item.category] += itemCostInHKD;
-                
-                let pLabel = '💵 Cash';
-                if (item.paymentMethod === 'Credit Card') pLabel = `💳 ${data.creditCards[item.cardIndex]?.name || 'Card'}`;
-                else if (item.paymentMethod === 'Bank Transfer') pLabel = `🏦 ${data.savings[item.bankAssetIndex]?.name || 'Bank'}`;
-                else if (item.paymentMethod === 'Octopus Card') pLabel = `💳 Octopus`;
+                let pLabel = isIncome ? '💰 Capital Inflow' : '💵 Cash';
+                if (!isIncome) {
+                    if (item.paymentMethod === 'Credit Card') pLabel = `💳 ${data.creditCards[item.cardIndex]?.name || 'Card'}`;
+                    else if (item.paymentMethod === 'Bank Transfer') pLabel = `🏦 ${data.savings[item.bankAssetIndex]?.name || 'Bank'}`;
+                    else if (item.paymentMethod === 'Octopus Card') pLabel = `🐙 ${data.savings[item.octopusAssetIndex]?.name || 'Octopus'}`;
+                } else if (item.bankAssetIndex !== null && data.savings[item.bankAssetIndex]) {
+                    pLabel = `🏦 Deposited: ${data.savings[item.bankAssetIndex].name}`;
+                }
 
-                const fallbackIcon = categoryIcons[item.category] || "🌀";
-
+                const fallbackIcon = categoryIcons[item.category] || (isIncome ? "💰" : "🌀");
                 const li = document.createElement('li'); li.className = 'item-row';
                 li.innerHTML = `
                     <div class="item-left-block">
-                        <div class="icon-circle">${fallbackIcon}</div>
+                        <div class="icon-circle" style="${isIncome ? 'background:#e6fcf5; color:#0ca678;' : ''}">${fallbackIcon}</div>
                         <div class="item-details">
                             <div class="name">${item.name}</div>
                             <div class="subtext">${pLabel} &bull; ${item.amount.toLocaleString()} ${item.currency}</div>
                         </div>
                     </div>
                     <div class="item-val-wrapper">
-                        <span class="val-pill pill-neutral">HK$ ${itemCostInHKD.toLocaleString(undefined,{minimumFractionDigits:2})}</span>
+                        <span class="val-pill ${isIncome ? 'pill-green' : 'pill-neutral'}">${isIncome ? '+' : ''}HK$ ${itemCostInHKD.toLocaleString(undefined,{minimumFractionDigits:2})}</span>
                         <button class="del-btn" onclick="deleteItem('expenses', ${idx})">&times;</button>
                     </div>
                 `;
                 expListEl.appendChild(li);
             }
         });
-        document.getElementById('expenseTotal').innerText = `HK$ ${totalFilteredMonthExpHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+
+        // Compute Hero Top Deck calculation parameters
+        const netSavingsPos = monthTotalIncomeHKD - monthTotalExpenseHKD;
+        const netEl = document.getElementById('netSavingsDisplay');
+        netEl.innerText = `${netSavingsPos >= 0 ? '+' : ''}HK$ ${netSavingsPos.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+        netEl.style.color = netSavingsPos >= 0 ? 'var(--pill-green-text)' : 'var(--pill-red-text)';
+        
+        document.getElementById('heroIncomeTotal').innerText = `+HK$ ${monthTotalIncomeHKD.toLocaleString(undefined,{maximumFractionDigits:0})}`;
+        document.getElementById('heroExpenseTotal').innerText = `-HK$ ${monthTotalExpenseHKD.toLocaleString(undefined,{maximumFractionDigits:0})}`;
         renderPieChart(categoryTotals);
 
-        // Process stocks
+        // Process live equities pricing cards
         const stockListEl = document.getElementById('stockList'); stockListEl.innerHTML = '';
-        let totalStocksHKD = 0, totalHksHKD = 0, totalUssHKD = 0;
-
+        let totalStocksHKD = 0;
         data.stocks.forEach((stock, idx) => {
             const stockValueInNativeCurrency = stock.shares * stock.price;
             const stockValueInHKD = stock.market === 'US' ? stockValueInNativeCurrency * liveRates['USD'] : stockValueInNativeCurrency;
-            
             totalStocksHKD += stockValueInHKD;
-            if(stock.market === 'HK') totalHksHKD += stockValueInHKD; else totalUssHKD += stockValueInHKD;
-
             const sym = stock.market === 'US' ? 'USD' : 'HKD';
             const li = document.createElement('li'); li.className = 'item-row';
             li.innerHTML = `
@@ -651,12 +785,13 @@
         if(data.stocks.length === 0) stockListEl.innerHTML = '<li class="item-row subtext">No tracked tickers.</li>';
         document.getElementById('stocksTotal').innerText = `HK$ ${totalStocksHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
 
-        // Process Savings
+        // Render savings asset items (Banks, Investments, and custom live Octopus)
         const bankListEl = document.getElementById('bankList');
         const investListEl = document.getElementById('investList');
+        const octopusCardAssetListEl = document.getElementById('octopusCardAssetList');
         const autoStockValuationListEl = document.getElementById('autoStockValuationList');
-        bankListEl.innerHTML = ''; investListEl.innerHTML = ''; autoStockValuationListEl.innerHTML = '';
         
+        bankListEl.innerHTML = ''; investListEl.innerHTML = ''; autoStockValuationListEl.innerHTML = ''; octopusCardAssetListEl.innerHTML = '';
         let totalSavingsHKD = totalStocksHKD;
 
         if(totalStocksHKD > 0) {
@@ -675,26 +810,32 @@
         } else { autoStockValuationListEl.innerHTML = '<li class="item-row subtext">No active investments linked.</li>'; }
 
         data.savings.forEach((item, idx) => {
-            const runningBalance = item.amount - bankDeductionsMap[idx];
-            const hkdVal = runningBalance * (liveRates[item.currency] || 1);
+            let finalCalculatedBalance = item.amount;
+            if(item.type === 'Bank') finalCalculatedBalance += bankModifiersMap[idx];
+            else if(item.type === 'Octopus') finalCalculatedBalance += octopusModifiersMap[idx];
+
+            const hkdVal = finalCalculatedBalance * (liveRates[item.currency] || 1);
             totalSavingsHKD += hkdVal;
             
             const li = document.createElement('li'); li.className = 'item-row';
             li.innerHTML = `
                 <div class="item-left-block">
-                    <div class="icon-circle">${item.type === 'Bank' ? '🏦' : '💼'}</div>
+                    <div class="icon-circle">${item.type === 'Bank' ? '🏦' : (item.type === 'Octopus' ? '🐙' : '💼')}</div>
                     <div class="item-details">
                         <div class="name">${item.name}</div>
-                        <div class="subtext">${runningBalance.toLocaleString()} ${item.currency}</div>
+                        <div class="subtext">Running Balance: ${finalCalculatedBalance.toLocaleString()} ${item.currency}</div>
                     </div>
                 </div>
                 <div class="item-val-wrapper">
-                    <span class="val-pill pill-green">HK$ ${hkdVal.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+                    <span class="val-pill ${finalCalculatedBalance < 0 ? 'pill-red' : (item.type === 'Octopus' ? 'pill-blue' : 'pill-green')}">HK$ ${hkdVal.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
                     <button class="del-btn" onclick="deleteItem('savings', ${idx})">&times;</button>
                 </div>
             `;
-            if(item.type === 'Bank') bankListEl.appendChild(li); else investListEl.appendChild(li);
+            if(item.type === 'Bank') bankListEl.appendChild(li); 
+            else if(item.type === 'Octopus') octopusCardAssetListEl.appendChild(li);
+            else investListEl.appendChild(li);
         });
+        if (octopusCardAssetListEl.innerHTML === '') octopusCardAssetListEl.innerHTML = '<li class="item-row subtext">No smart Octopus cards active.</li>';
         document.getElementById('savingsTotal').innerText = `HK$ ${totalSavingsHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
 
         // Credit Cards Debt
@@ -734,26 +875,53 @@
         else {
             categoryPieChart = new Chart(ctx, {
                 type: 'pie',
-                data: { labels: Object.keys(totalsData), datasets: [{ data: values, backgroundColor: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#64748b'], borderWidth: 0 }] },
+                data: { labels: Object.keys(totalsData), datasets: [{ data: values, backgroundColor: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#0284c7', '#64748b'], borderWidth: 0 }] },
                 options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 9, weight: 'bold' } } } } }
             });
         }
     }
 
+    // Handlers for Form Submissions
     document.getElementById('expenseForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const selectedCurrency = document.getElementById('expCurrency').value;
-        const targetPeriodMonth = new Date().toISOString().substring(0, 7); 
+        const targetPeriodMonth = document.getElementById('monthFilter').value || new Date().toISOString().substring(0, 7);
         const pMethod = document.getElementById('expPaymentMethod').value;
+        
         data.expenses.push({
-            name: document.getElementById('expName').value, category: document.getElementById('expCategory').value,
-            amount: parseFloat(document.getElementById('expAmount').value), currency: selectedCurrency, paymentMethod: pMethod,
+            flowType: 'expense',
+            name: document.getElementById('expName').value, 
+            category: document.getElementById('expCategory').value,
+            amount: parseFloat(document.getElementById('expAmount').value), 
+            currency: selectedCurrency, 
+            paymentMethod: pMethod,
             cardIndex: pMethod === 'Credit Card' ? parseInt(document.getElementById('expChosenCard').value) : null,
             bankAssetIndex: pMethod === 'Bank Transfer' ? parseInt(document.getElementById('expChosenBank').value) : null,
-            frozenRate: liveRates[selectedCurrency] || 1, periodMonth: targetPeriodMonth         
+            octopusAssetIndex: (pMethod === 'Octopus Card' || document.getElementById('expCategory').value === 'Octopus Top-Up') ? parseInt(document.getElementById('expChosenOctopus').value) : null,
+            frozenRate: liveRates[selectedCurrency] || 1, 
+            periodMonth: targetPeriodMonth         
         });
-        buildDropdownMonths(); document.getElementById('monthFilter').value = targetPeriodMonth;
         updateUI(); document.getElementById('expenseForm').reset(); handlePaymentMethodChange();
+    });
+
+    document.getElementById('incomeForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const selectedCurrency = document.getElementById('incCurrency').value;
+        const targetPeriodMonth = document.getElementById('monthFilter').value || new Date().toISOString().substring(0, 7);
+        const bIndexVal = document.getElementById('incChosenBank').value;
+
+        data.expenses.push({
+            flowType: 'income',
+            name: document.getElementById('incName').value,
+            category: document.getElementById('incCategory').value,
+            amount: parseFloat(document.getElementById('incAmount').value),
+            currency: selectedCurrency,
+            paymentMethod: 'Inflow Direct',
+            bankAssetIndex: bIndexVal !== "" ? parseInt(bIndexVal) : null,
+            frozenRate: liveRates[selectedCurrency] || 1,
+            periodMonth: targetPeriodMonth
+        });
+        updateUI(); document.getElementById('incomeForm').reset();
     });
 
     document.getElementById('savingsForm').addEventListener('submit', (e) => {
@@ -764,14 +932,8 @@
 
     document.getElementById('stockForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        data.stocks.push({
-            market: activeStockMarket,
-            ticker: document.getElementById('stockTicker').value.trim(),
-            shares: parseFloat(document.getElementById('stockShares').value),
-            price: 0
-        });
-        document.getElementById('stockForm').reset();
-        fetchAllStockPrices();
+        data.stocks.push({ market: activeStockMarket, ticker: document.getElementById('stockTicker').value.trim(), shares: parseFloat(document.getElementById('stockShares').value), price: 0 });
+        document.getElementById('stockForm').reset(); fetchAllStockPrices();
     });
 
     document.getElementById('cardForm').addEventListener('submit', (e) => {
