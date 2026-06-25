@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wealth & Analytics Tracker</title>
+    <title>Balance — Budgeting Made Simple</title>
     
     <link rel="manifest" href="./manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Tracker">
+    <meta name="apple-mobile-web-app-title" content="Balance">
     <link class="apple-touch-icon" rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2454/2454269.png">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -73,7 +73,6 @@
         .total-card h2 { margin: 0; font-size: 0.85rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
         .total-amount { font-size: 2.3rem; font-weight: 800; margin-top: 8px; color: var(--text-main); letter-spacing: -0.5px; }
         
-        /* Mini Summary Row inside Hero Card */
         .hero-breakdown {
             display: flex;
             justify-content: space-around;
@@ -162,7 +161,6 @@
         .api-status { font-size: 0.75rem; color: var(--text-sub); text-align: center; margin-top: -10px; margin-bottom: 16px; font-weight: 500;}
         .refresh-pill { color: var(--primary-purple); font-weight: 700; cursor: pointer; margin-left: 4px; text-decoration: underline;}
 
-        /* Unified Form Switcher Pill Tab */
         .form-switcher { display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 14px; margin-bottom: 16px;}
         .form-switch-btn { flex:1; text-align:center; padding: 10px; font-size:0.85rem; font-weight:700; border-radius:10px; cursor:pointer; color:#64748b; transition: all 0.2s;}
         .form-switch-btn.active { background:#fff; color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.03);}
@@ -200,7 +198,6 @@
         <span id="headerPeriodDisplay">Analytics Engine</span>
     </div>
     
-    <!-- ================= CASH FLOW TAB (INCOME & EXPENSES) ================= -->
     <div id="expenses-tab" class="tab-content active">
         <div class="total-card">
             <h2>Net Monthly Savings</h2>
@@ -227,14 +224,12 @@
             <div class="chart-container"><canvas id="categoryChart"></canvas></div>
         </div>
 
-        <!-- Input Block Container for Income and Expenses switcher -->
         <div class="card">
             <div class="form-switcher">
                 <div class="form-switch-btn active" id="btn-switch-expense" onclick="toggleFormBlock('expense')">💸 Add Expense</div>
                 <div class="form-switch-btn" id="btn-switch-income" onclick="toggleFormBlock('income')">💰 Add Income</div>
             </div>
 
-            <!-- EXPENSE SUB-FORM -->
             <div id="form-block-expense" class="sub-form-block active">
                 <form id="expenseForm">
                     <div class="form-row">
@@ -244,7 +239,7 @@
                         </div>
                         <div class="form-group" style="flex: 1.2;">
                             <label>Category</label>
-                            <select id="expCategory">
+                            <select id="expCategory" onchange="handlePaymentMethodChange()">
                                 <option value="Food">🍔 Food</option>
                                 <option value="Transport">🚇 Transport</option>
                                 <option value="Shopping">🛍️ Shopping</option>
@@ -290,7 +285,6 @@
                 </form>
             </div>
 
-            <!-- INCOME SUB-FORM -->
             <div id="form-block-income" class="sub-form-block">
                 <form id="incomeForm">
                     <div class="form-row">
@@ -336,7 +330,6 @@
         </div>
     </div>
 
-    <!-- ================= SAVINGS / ASSETS TAB ================= -->
     <div id="savings-tab" class="tab-content">
         <div class="total-card">
             <h2>Total Net Savings Assets</h2>
@@ -388,7 +381,6 @@
         </div>
     </div>
 
-    <!-- ================= STOCKS TAB ================= -->
     <div id="stocks-tab" class="tab-content">
         <div class="total-card">
             <h2>Live Portfolio Capitalization</h2>
@@ -432,7 +424,6 @@
         </div>
     </div>
 
-    <!-- ================= CREDIT CARDS TAB ================= -->
     <div id="cards-tab" class="tab-content">
         <div class="total-card">
             <h2>Aggregated Statement Debt</h2>
@@ -468,7 +459,6 @@
 
 </div>
 
-<!-- ================= BOTTOM NAVIGATION BAR ================= -->
 <div class="bottom-nav">
     <button class="nav-item active" id="nav-expenses-tab" onclick="switchTab('expenses-tab')">
         <div class="nav-icon">📊</div>
@@ -493,7 +483,6 @@
         navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
     }
 
-    // w_expenses_v7 tracks unified ledger transactions (with dynamic item.flowType = 'income' | 'expense')
     let data = {
         expenses: JSON.parse(localStorage.getItem('w_expenses_v7')) || [],
         savings: JSON.parse(localStorage.getItem('w_savings_v7')) || [],
@@ -565,9 +554,20 @@
 
     function handlePaymentMethodChange() {
         const method = document.getElementById('expPaymentMethod').value;
+        const category = document.getElementById('expCategory').value;
+        
         document.getElementById('bankSelectGroup').style.display = 'none'; 
         document.getElementById('creditCardSelectGroup').style.display = 'none';
         document.getElementById('octopusSelectGroup').style.display = 'none';
+
+        // Override visual toggle: if setting up a Top-Up, force bank visibility fields to track the out-source
+        if (category === 'Octopus Top-Up') {
+            document.getElementById('bankSelectGroup').style.display = 'block';
+            if (data.savings.filter(s => s.type === 'Octopus').length > 0) {
+                document.getElementById('octopusSelectGroup').style.display = 'block';
+            }
+            return;
+        }
 
         if (method === 'Bank Transfer' && data.savings.filter(s => s.type === 'Bank').length > 0) document.getElementById('bankSelectGroup').style.display = 'block';
         if (method === 'Credit Card' && data.creditCards.length > 0) document.getElementById('creditCardSelectGroup').style.display = 'block';
@@ -649,7 +649,6 @@
         const selectedMonth = document.getElementById('monthFilter').value || new Date().toISOString().substring(0, 7);
         document.getElementById('headerPeriodDisplay').innerText = new Date(selectedMonth + "-02").toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-        // Update dropdown banking components dynamically
         const bankSelect = document.getElementById('expChosenBank'); bankSelect.innerHTML = '';
         const incBankSelect = document.getElementById('incChosenBank'); incBankSelect.innerHTML = '<option value="">None (Physical Cash / Unlinked)</option>';
         
@@ -676,41 +675,35 @@
         });
 
         let cardDebtAccruals = data.creditCards.map(() => 0);
-        let bankModifiersMap = data.savings.map(() => 0); // Stores (+ Income) and (- Expenses)
+        let bankModifiersMap = data.savings.map(() => 0); 
         let octopusModifiersMap = data.savings.map(() => 0); 
         let categoryTotals = { Food: 0, Transport: 0, Shopping: 0, Entertainment: 0, Bills: 0, "Octopus Top-Up": 0, Others: 0 };
 
-        // Process unified Ledger rows
-        const expListEl = document.getElementById('expenseList'); expListEl.innerHTML = '';
         let monthTotalIncomeHKD = 0;
         let monthTotalExpenseHKD = 0;
+        const expListEl = document.getElementById('expenseList'); expListEl.innerHTML = '';
         
         data.expenses.forEach((item, idx) => {
             const itemCostInHKD = item.amount * item.frozenRate;
             const isIncome = item.flowType === 'income';
 
             if(isIncome) {
-                // Apply global balance modifier mapping to target vault bank
                 if (item.bankAssetIndex !== null && bankModifiersMap[item.bankAssetIndex] !== undefined) {
                     bankModifiersMap[item.bankAssetIndex] += itemCostInHKD / (liveRates[data.savings[item.bankAssetIndex].currency] || 1);
                 }
                 if (item.periodMonth === selectedMonth) monthTotalIncomeHKD += itemCostInHKD;
             } else {
-                // Apply Outflow balance logic modifications
                 if (item.paymentMethod === 'Credit Card' && cardDebtAccruals[item.cardIndex] !== undefined) {
                     cardDebtAccruals[item.cardIndex] += itemCostInHKD / (liveRates[data.creditCards[item.cardIndex].currency] || 1);
                 }
-                if (item.paymentMethod === 'Bank Transfer' && bankModifiersMap[item.bankAssetIndex] !== undefined) {
+                if ((item.paymentMethod === 'Bank Transfer' || item.category === 'Octopus Top-Up') && item.bankAssetIndex !== null && bankModifiersMap[item.bankAssetIndex] !== undefined) {
                     bankModifiersMap[item.bankAssetIndex] -= itemCostInHKD / (liveRates[data.savings[item.bankAssetIndex].currency] || 1);
                 }
-                if (item.paymentMethod === 'Octopus Card' && octopusModifiersMap[item.octopusAssetIndex] !== undefined) {
+                if (item.paymentMethod === 'Octopus Card' && item.octopusAssetIndex !== null && octopusModifiersMap[item.octopusAssetIndex] !== undefined) {
                     octopusModifiersMap[item.octopusAssetIndex] -= itemCostInHKD / (liveRates[data.savings[item.octopusAssetIndex].currency] || 1);
                 }
-                if (item.category === 'Octopus Top-Up') {
-                    let targetedOctopusIdx = item.octopusAssetIndex ?? data.savings.findIndex(s => s.type === 'Octopus');
-                    if (targetedOctopusIdx !== -1 && octopusModifiersMap[targetedOctopusIdx] !== undefined) {
-                        octopusModifiersMap[targetedOctopusIdx] += itemCostInHKD / (liveRates[data.savings[targetedOctopusIdx].currency] || 1);
-                    }
+                if (item.category === 'Octopus Top-Up' && item.octopusAssetIndex !== null && octopusModifiersMap[item.octopusAssetIndex] !== undefined) {
+                    octopusModifiersMap[item.octopusAssetIndex] += itemCostInHKD / (liveRates[data.savings[item.octopusAssetIndex].currency] || 1);
                 }
                 if (item.periodMonth === selectedMonth) {
                     monthTotalExpenseHKD += itemCostInHKD;
@@ -718,11 +711,11 @@
                 }
             }
 
-            // Output visual element item to current month screen logs
             if (item.periodMonth === selectedMonth) {
                 let pLabel = isIncome ? '💰 Capital Inflow' : '💵 Cash';
                 if (!isIncome) {
-                    if (item.paymentMethod === 'Credit Card') pLabel = `💳 ${data.creditCards[item.cardIndex]?.name || 'Card'}`;
+                    if (item.category === 'Octopus Top-Up') pLabel = `⚡ Octopus Reloaded`;
+                    else if (item.paymentMethod === 'Credit Card') pLabel = `💳 ${data.creditCards[item.cardIndex]?.name || 'Card'}`;
                     else if (item.paymentMethod === 'Bank Transfer') pLabel = `🏦 ${data.savings[item.bankAssetIndex]?.name || 'Bank'}`;
                     else if (item.paymentMethod === 'Octopus Card') pLabel = `🐙 ${data.savings[item.octopusAssetIndex]?.name || 'Octopus'}`;
                 } else if (item.bankAssetIndex !== null && data.savings[item.bankAssetIndex]) {
@@ -748,7 +741,6 @@
             }
         });
 
-        // Compute Hero Top Deck calculation parameters
         const netSavingsPos = monthTotalIncomeHKD - monthTotalExpenseHKD;
         const netEl = document.getElementById('netSavingsDisplay');
         netEl.innerText = `${netSavingsPos >= 0 ? '+' : ''}HK$ ${netSavingsPos.toLocaleString(undefined,{minimumFractionDigits:2})}`;
@@ -758,7 +750,6 @@
         document.getElementById('heroExpenseTotal').innerText = `-HK$ ${monthTotalExpenseHKD.toLocaleString(undefined,{maximumFractionDigits:0})}`;
         renderPieChart(categoryTotals);
 
-        // Process live equities pricing cards
         const stockListEl = document.getElementById('stockList'); stockListEl.innerHTML = '';
         let totalStocksHKD = 0;
         data.stocks.forEach((stock, idx) => {
@@ -785,7 +776,6 @@
         if(data.stocks.length === 0) stockListEl.innerHTML = '<li class="item-row subtext">No tracked tickers.</li>';
         document.getElementById('stocksTotal').innerText = `HK$ ${totalStocksHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
 
-        // Render savings asset items (Banks, Investments, and custom live Octopus)
         const bankListEl = document.getElementById('bankList');
         const investListEl = document.getElementById('investList');
         const octopusCardAssetListEl = document.getElementById('octopusCardAssetList');
@@ -836,9 +826,9 @@
             else investListEl.appendChild(li);
         });
         if (octopusCardAssetListEl.innerHTML === '') octopusCardAssetListEl.innerHTML = '<li class="item-row subtext">No smart Octopus cards active.</li>';
+        if (bankListEl.innerHTML === '') bankListEl.innerHTML = '<li class="item-row subtext">No liquid bank accounts registered.</li>';
         document.getElementById('savingsTotal').innerText = `HK$ ${totalSavingsHKD.toLocaleString(undefined,{minimumFractionDigits:2})}`;
 
-        // Credit Cards Debt
         const ccListEl = document.getElementById('creditCardList'); ccListEl.innerHTML = '';
         let totalCardDebtHKD = 0;
         data.creditCards.forEach((card, idx) => {
@@ -881,23 +871,33 @@
         }
     }
 
-    // Handlers for Form Submissions
     document.getElementById('expenseForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const selectedCurrency = document.getElementById('expCurrency').value;
         const targetPeriodMonth = document.getElementById('monthFilter').value || new Date().toISOString().substring(0, 7);
         const pMethod = document.getElementById('expPaymentMethod').value;
+        const category = document.getElementById('expCategory').value;
         
+        let bankIdx = pMethod === 'Bank Transfer' ? parseInt(document.getElementById('expChosenBank').value) : null;
+        let octIdx = pMethod === 'Octopus Card' ? parseInt(document.getElementById('expChosenOctopus').value) : null;
+
+        if (category === 'Octopus Top-Up') {
+            bankIdx = parseInt(document.getElementById('expChosenBank').value);
+            const octSelectEl = document.getElementById('expChosenOctopus');
+            octIdx = octSelectEl.value !== "" ? parseInt(octSelectEl.value) : data.savings.findIndex(s => s.type === 'Octopus');
+            if (octIdx === -1 || isNaN(octIdx)) octIdx = null;
+        }
+
         data.expenses.push({
             flowType: 'expense',
             name: document.getElementById('expName').value, 
-            category: document.getElementById('expCategory').value,
+            category: category,
             amount: parseFloat(document.getElementById('expAmount').value), 
             currency: selectedCurrency, 
-            paymentMethod: pMethod,
-            cardIndex: pMethod === 'Credit Card' ? parseInt(document.getElementById('expChosenCard').value) : null,
-            bankAssetIndex: pMethod === 'Bank Transfer' ? parseInt(document.getElementById('expChosenBank').value) : null,
-            octopusAssetIndex: (pMethod === 'Octopus Card' || document.getElementById('expCategory').value === 'Octopus Top-Up') ? parseInt(document.getElementById('expChosenOctopus').value) : null,
+            paymentMethod: category === 'Octopus Top-Up' ? 'Bank Transfer' : pMethod,
+            cardIndex: pMethod === 'Credit Card' && category !== 'Octopus Top-Up' ? parseInt(document.getElementById('expChosenCard').value) : null,
+            bankAssetIndex: bankIdx,
+            octopusAssetIndex: octIdx,
             frozenRate: liveRates[selectedCurrency] || 1, 
             periodMonth: targetPeriodMonth         
         });
@@ -918,6 +918,7 @@
             currency: selectedCurrency,
             paymentMethod: 'Inflow Direct',
             bankAssetIndex: bIndexVal !== "" ? parseInt(bIndexVal) : null,
+            octopusAssetIndex: null,
             frozenRate: liveRates[selectedCurrency] || 1,
             periodMonth: targetPeriodMonth
         });
@@ -926,7 +927,12 @@
 
     document.getElementById('savingsForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        data.savings.push({ type: document.getElementById('assetType').value, name: document.getElementById('assetName').value, amount: parseFloat(document.getElementById('assetAmount').value), currency: document.getElementById('assetCurrency').value });
+        data.savings.push({ 
+            type: document.getElementById('assetType').value, 
+            name: document.getElementById('assetName').value, 
+            amount: parseFloat(document.getElementById('assetAmount').value), 
+            currency: document.getElementById('assetCurrency').value 
+        });
         updateUI(); document.getElementById('savingsForm').reset(); toggleAssetLabel();
     });
 
